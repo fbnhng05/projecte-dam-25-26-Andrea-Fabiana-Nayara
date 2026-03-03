@@ -1,4 +1,4 @@
-package com.example.android_loop.Producto
+package com.example.android_loop.data.Producto
 
 import android.net.Uri
 import android.widget.Toast
@@ -34,7 +34,7 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateProductScreen(
-    viewModel: ProductViewModel,
+    viewModel: _02_ProductViewModel,
     navController: NavController
 ) {
 
@@ -272,7 +272,7 @@ fun CreateProductScreen(
                         }
                     }
                 )
-                Text(etiqueta.nombre)
+                Text(etiqueta.name)
             }
         }
 

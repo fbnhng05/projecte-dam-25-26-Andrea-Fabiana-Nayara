@@ -108,28 +108,36 @@ class controladorEtiqueta(http.Controller):
             return {'error': str(e)}
 
     # --------------------------------------------------------------------------
-#  LISTAR TODAS LAS ETIQUETAS (GET)
-# --------------------------------------------------------------------------
-@http.route('/api/v1/loop/etiquetas', auth='none', methods=['GET'], csrf=False, type='json')
-def list_etiquetas(self):
+    #  LISTAR TODAS LAS ETIQUETAS (GET)
+    # --------------------------------------------------------------------------
+    @http.route('/api/v1/loop/etiquetas', auth='none', methods=['GET'], csrf=False, type='http')
+    def list_etiquetas(self):
 
-    user = get_current_user_from_token()
+        user = get_current_user_from_token()
 
-    if not user:
-        return {'error': 'Unauthorized'}
+        if not user:
+            return request.make_response(
+                json.dumps({'error': 'Unauthorized'}),
+                headers=[('Content-Type', 'application/json')],
+                status=401
+            )
 
-    etiquetas = request.env['loop_proyecto.etiqueta_producto'].sudo().search([])
+        etiquetas = request.env['loop_proyecto.etiqueta_producto'].sudo().search([])
 
-    result = []
+        result = []
 
-    for etiqueta in etiquetas:
-        result.append({
-            'id': etiqueta.id,
-            'name': etiqueta.name,
-            'active': etiqueta.active,
-        })
+        for etiqueta in etiquetas:
+            result.append({
+                'id': etiqueta.id,
+                'name': etiqueta.name,
+                'active': etiqueta.active,
+            })
 
-    return {'success': True, 'etiquetas': result}
+        return request.make_response(
+            json.dumps({'success': True, 'etiquetas': result}),
+            headers=[('Content-Type', 'application/json')],
+            status=200
+        )
 
     # --------------------------------------------------------------------------
     #  ELIMINAR ETIQUETA (DELETE)

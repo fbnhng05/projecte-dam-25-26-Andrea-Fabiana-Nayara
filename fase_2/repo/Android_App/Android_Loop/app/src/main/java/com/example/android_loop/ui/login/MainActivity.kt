@@ -1,5 +1,6 @@
 package com.example.android_loop.ui.login
 
+import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -60,19 +61,25 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.android_loop.ui.perfilUsuario.PerfilUsuario
-import com.example.android_loop.Producto.CreateProductScreen
-import com.example.android_loop.Producto.ProductScreen
-import com.example.android_loop.Producto.ProductViewModel
-import com.example.android_loop.ui.shoppingCart.CartViewModel
-import com.example.android_loop.ui.shoppingCart.CartScreen
 import com.example.android_loop.R
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.example.android_loop.data.Producto.CreateProductScreen
+import com.example.android_loop.data.Producto.ProductScreen
+import com.example.android_loop.data.Producto._02_ProductViewModel
+import com.example.android_loop.data.Producto.accesoApi.TokenManager
+import com.example.android_loop.ui.detalleProducto.DetalleProductoScreen
 import com.example.android_loop.ui.registro.Registro
+import com.example.android_loop.ui.SettingsScreen
+import com.example.android_loop.ui.shoppingCart.CartScreen
+import com.example.android_loop.ui.shoppingCart.CartViewModel
 import com.example.android_loop.ui.theme.Android_LoopTheme
 import java.security.MessageDigest
+import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
 
-    private val viewModelProductos by viewModels<ProductViewModel>()
+    private val viewModelProductos by viewModels<_02_ProductViewModel>()
     private val viewModelCart by viewModels<CartViewModel>()
     private val logo = R.drawable.loop_logo
 
@@ -96,13 +103,31 @@ class MainActivity : ComponentActivity() {
                 }
 
                 composable("pantalla_listado") { // pantalla listado productos
-                    ProductScreen(viewModelProductos, viewModelCart, navController)
+                    ProductScreen(viewModelProductos, navController, viewModelCart)
+                }
+
+                composable(
+                    route = "detalle_producto/{productId}",
+                    arguments = listOf(navArgument("productId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val productId = backStackEntry.arguments?.getInt("productId") ?: return@composable
+                    DetalleProductoScreen(
+                        productId = productId,
+                        viewModel = viewModelProductos,
+                        cartViewModel = viewModelCart,
+                        navController = navController
+                    )
                 }
 
                 composable("carrito") { // carrito de compra
                     CartScreen(viewModelCart, navController)
                 }
+
+                composable("ajustes") { // pantalla de ajustes
+                    SettingsScreen(navController)
+                }
             }
+        }
     }
 }
 
@@ -185,11 +210,11 @@ fun Loggeo(navController: NavHostController) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
 
-                            Image(
-                                painter = painterResource(id = logo),
-                                contentDescription = null,
-                                modifier = Modifier.size(200.dp)
-                            )
+                            //Image(
+                                //painter = painterResource(id = logo),
+                              //  contentDescription = null,
+                               // modifier = Modifier.size(200.dp)
+                           // )
 
                             Spacer(Modifier.height(16.dp))
 
@@ -241,6 +266,8 @@ fun Loggeo(navController: NavHostController) {
                                         val prefs = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
                                         prefs.edit { putString("token", token) }
 
+                                        TokenManager.saveToken(token)
+
                                         navController.navigate("perfilUsuario")
                                     }
                                 }
@@ -263,7 +290,6 @@ fun Loggeo(navController: NavHostController) {
             }
         }
     }
-}
 
 fun encriptarPasswd(passwd: String): String {
     val digest = MessageDigest.getInstance("SHA-256")

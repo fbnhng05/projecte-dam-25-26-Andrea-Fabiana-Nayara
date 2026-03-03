@@ -69,6 +69,10 @@ class ProductoController(http.Controller):
                 }
                 for img in p.imagen_ids
             ],
+            'thumbnail': next(
+                (img.imagen.decode('utf-8') for img in p.imagen_ids if img.is_principal and img.imagen),
+                next((img.imagen.decode('utf-8') for img in p.imagen_ids if img.imagen), None)
+            ),
         })
 
 
@@ -158,8 +162,6 @@ class ProductoController(http.Controller):
                 'is_principal': img.get('is_principal', False),
                 'sequence': img.get('sequence', 10),
             })
-
-        _logger.warning("RETORNANDO OK PRODUCTO")
 
         return {
             'ok': True,

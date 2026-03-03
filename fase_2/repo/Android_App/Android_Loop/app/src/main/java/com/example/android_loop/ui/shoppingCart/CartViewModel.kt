@@ -2,7 +2,7 @@ package com.example.android_loop.ui.shoppingCart
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import com.example.android_loop.Producto.Product
+import com.example.android_loop.data.Producto.Product
 
 class CartViewModel : ViewModel() {
 

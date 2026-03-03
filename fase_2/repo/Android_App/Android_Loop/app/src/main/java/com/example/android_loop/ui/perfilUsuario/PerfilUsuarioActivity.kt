@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -130,6 +133,23 @@ fun PerfilUsuario(navController: NavHostController) {
                     .padding(top = 32.dp),
                 contentAlignment = Alignment.Center
             ) {
+                // Botón ajustes (esquina superior derecha)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.TopEnd),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(onClick = { navController.navigate("ajustes") }) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Ajustes",
+                            tint = Color(0xFF003459),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
                 Column(Modifier.verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,) {
                     avatarImage?.let { img ->
@@ -279,11 +299,9 @@ fun TabMenu(navController: NavHostController) {
     val currentRoute = navBackStackEntry?.destination?.route
 
     val items = listOf(
+        "perfilUsuario",
         "pantalla_listado",
-        //"favoritos",
         "crear_producto",
-        //"shop",
-        "perfilUsuario"
     )
 
     NavigationBar(
@@ -297,9 +315,9 @@ fun TabMenu(navController: NavHostController) {
         items.forEachIndexed { index, route ->
 
             val icon = when(route) {
-                "pantalla_listado" -> R.drawable.home
+                "perfilUsuario" -> R.drawable.home
+                "pantalla_listado" -> R.drawable.shop
                 "crear_producto" -> R.drawable.add
-                "perfilUsuario" -> R.drawable.no_avatar
                 else -> R.drawable.home
             }
 
