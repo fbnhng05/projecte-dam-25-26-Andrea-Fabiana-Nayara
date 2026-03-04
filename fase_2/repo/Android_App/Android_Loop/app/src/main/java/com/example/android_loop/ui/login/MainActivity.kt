@@ -262,7 +262,8 @@ fun Loggeo(navController: NavHostController) {
                             }
 
                                 LaunchedEffect(loginState) {
-                                    loginState?.onSuccess { token ->
+                                    if (loginState is LoginUiState.Success) {
+                                        val token = (loginState).token
                                         val prefs = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
                                         prefs.edit { putString("token", token) }
 
