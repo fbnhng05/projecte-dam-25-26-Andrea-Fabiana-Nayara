@@ -90,5 +90,6 @@ class ApiLoop(private val cliente: HttpClient = HttpClientProvider.cliente) {
             Result.failure(ex)
         }
     }
-
 }
+
+// Esto es simplemente para asegurarme que la versión arreglada se suba correctamente a github //
