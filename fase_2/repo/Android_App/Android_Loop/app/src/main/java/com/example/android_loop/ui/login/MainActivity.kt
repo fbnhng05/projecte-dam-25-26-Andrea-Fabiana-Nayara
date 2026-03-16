@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,7 +28,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,13 +43,11 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
@@ -66,20 +62,18 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.android_loop.data.Producto.CreateProductScreen
 import com.example.android_loop.data.Producto.ProductScreen
-import com.example.android_loop.data.Producto._02_ProductViewModel
-import com.example.android_loop.data.Producto.accesoApi.TokenManager
-import com.example.android_loop.ui.detalleProducto.DetalleProductoScreen
+import com.example.android_loop.ui.Producto.ViewModel_Producto
+import com.example.android_loop.ui.Producto.DetalleProductoScreen
 import com.example.android_loop.ui.registro.Registro
 import com.example.android_loop.ui.SettingsScreen
 import com.example.android_loop.ui.shoppingCart.CartScreen
 import com.example.android_loop.ui.shoppingCart.CartViewModel
-import com.example.android_loop.ui.theme.Android_LoopTheme
 import java.security.MessageDigest
 import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
 
-    private val viewModelProductos by viewModels<_02_ProductViewModel>()
+    private val viewModelProductos by viewModels<ViewModel_Producto>()
     private val viewModelCart by viewModels<CartViewModel>()
     private val logo = R.drawable.loop_logo
 
@@ -88,6 +82,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
+
+            //obtener Token
+            val context = LocalContext.current
+            val prefs = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
+            val token = prefs.getString("token", "") ?: ""
+
+
             NavHost(
                 navController = navController,
                 startDestination = "login"
@@ -98,20 +99,37 @@ class MainActivity : ComponentActivity() {
                 composable("login") { Loggeo(navController) } // login
                 composable("perfilUsuario") { PerfilUsuario(navController) } // perfil usuario
                 composable("registro") { Registro(navController) } // registro
-                composable("crear_producto") { // crear producto
-                    CreateProductScreen(viewModelProductos, navController)
+
+                composable("pantalla_listado") {
+                    val context = LocalContext.current
+                    val token = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
+                        .getString("token", "") ?: ""
+
+                    ProductScreen(
+                        token,
+                        viewModel = viewModelProductos,
+                        navController = navController,
+                        cartViewModel = viewModelCart
+                    )
                 }
 
-                composable("pantalla_listado") { // pantalla listado productos
-                    ProductScreen(viewModelProductos, navController, viewModelCart)
+                composable("crear_producto") { // crear producto
+                    val context = LocalContext.current
+                    val token = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
+                        .getString("token", "") ?: ""
+                    CreateProductScreen(token, viewModelProductos, navController)
                 }
 
                 composable(
                     route = "detalle_producto/{productId}",
                     arguments = listOf(navArgument("productId") { type = NavType.IntType })
                 ) { backStackEntry ->
+                    val context = LocalContext.current
+                    val token = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
+                        .getString("token", "") ?: ""
                     val productId = backStackEntry.arguments?.getInt("productId") ?: return@composable
                     DetalleProductoScreen(
+                        token,
                         productId = productId,
                         viewModel = viewModelProductos,
                         cartViewModel = viewModelCart,
@@ -265,8 +283,6 @@ fun Loggeo(navController: NavHostController) {
                                     loginState?.onSuccess { token ->
                                         val prefs = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
                                         prefs.edit { putString("token", token) }
-
-                                        TokenManager.saveToken(token)
 
                                         navController.navigate("perfilUsuario")
                                     }
