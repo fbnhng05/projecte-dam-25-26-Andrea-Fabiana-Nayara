@@ -1,0 +1,81 @@
+Requisitos funcionales (RF)
+
+RF1. Gestión de usuarios
+
+- Registro e inicio de sesión para poder publicar y comentar.
+- Perfil con: valoración media, nº de productos en venta/vendidos/comprados y antigüedad.
+- Los empleados pueden eliminar usuarios que incumplan la política.
+
+RF2. Productos
+
+- Publicar productos rellenando campos obligatorios: propietario, categoría (predefinida), nombre, descripción, antigüedad, estado, etiquetas (≤5), imágenes (1–10), precio, ubicación.
+- Listado/búsqueda con filtros por categoría, etiqueta, nombre, precio y distancia.
+- Los empleados pueden eliminar artículos que incumplan la política.
+
+RF3. Categorías
+
+- CRUD de categorías con: nombre, descripción e imagen (gestión por empleados).
+
+RF4. Comentarios y notificaciones
+
+- Comentar artículos (requiere usuario registrado).
+- Notificar al propietario del producto al recibir comentario (email/WhatsApp/SMS/etc. + aviso interno).
+-Empleados pueden eliminar comentarios que incumplan la política.
+
+RF5. Mensajería entre usuarios
+
+- Chat comprador–vendedor vinculado al producto.
+
+RF6. Compras y valoraciones
+
+- Comprar productos entre usuarios.
+- Tras la compra, ambos reciben notificación para valorar (1–5 estrellas + comentario opcional); las valoraciones se integran en el perfil.
+
+RF7. Denuncias y moderación
+
+- Reportar productos o comentarios ofensivos.
+- Notificación a empleados; revisión y moderación (eliminación).
+
+RF8. Backoffice (empleados)
+
+- Gestionar categorías, etiquetas, usuarios; moderar comentarios; atender denuncias.
+- Generar listados: usuarios más activos, mejor valorados, categorías con más artículos, más ventas, etc.
+
+RF9. Arquitectura de aplicaciones
+
+- API REST que provee servicios a las apps; inicialmente cubrir acciones del escritorio de empleados.
+- App móvil para usuarios; aplicación ERP/escritorio para empleados (y opcional para usuarios).
+
+Requisitos no funcionales (RNF)
+
+RNF1. Seguridad y control de acceso
+
+- Autenticación para publicar/comentar; autorización con roles (usuario vs. empleado moderador). (Inferido de RF y política de moderación).
+
+RNF2. Notificaciones multicanal
+
+- Soporte a múltiples canales (email, WhatsApp, SMS, etc.) además de avisos internos.
+
+RNF3. Usabilidad y experiencia
+
+- Interfaces diferenciadas y enfocadas a cada rol (móvil para usuarios; escritorio/ERP para empleados).
+
+RNF4. Rendimiento y escalabilidad
+
+- Listados con filtros (y previsión de paginación); tiempos de respuesta adecuados aun con muchas publicaciones. (Inferido del requisito de listados/filtrado).
+
+RNF5. Mantenibilidad y modularidad
+
+- Diseño API-first para permitir ampliar servicios “en función del tiempo”.
+
+RNF6. Portabilidad
+
+- Soporte a múltiples clientes (móvil, escritorio/ERP) consumiendo la misma API REST.
+
+RNF7. Geo-capacidad
+
+- Gestión de ubicación del producto y cálculo/filtrado por distancia.
+
+RNF8. Trazabilidad y auditoría
+
+- Registro de acciones moderadas (eliminaciones/denuncias) para cumplimiento de políticas. (Inferido del flujo de moderación).

@@ -1,0 +1,54 @@
+PERSONA
+Entidad: Persona
+Herencia: Usuario, Administrador
+
+POST	/auth/register	Registrar nuevo usuario
+POST	/auth/login	Iniciar sesión
+GET	/usuarios/{id}	Obtener perfil del usuario
+PUT	/usuarios/{id, Persona pNueva}	Actualizar datos del usuario
+DELETE	/usuarios/{id}	Eliminar cuenta de usuario (admin o usuario propio)
+
+
+PRODUCTO
+Entidad: Producto
+
+GET	/productos	Listar productos disponibles
+GET	/productos/{id}	Obtener información de un producto
+POST	/productos	Publicar nuevo producto
+PUT	/productos/{id}	Editar producto propio
+DELETE	/productos/{id}	Eliminar producto (admin o dueño)
+GET	/usuarios/{id}/productos	Listar productos en venta de un usuario
+
+
+CHAT
+Entidad: Chat, User_Chat
+
+POST	/chats	Iniciar chat sobre un producto
+GET	/chats	Listar chats del usuario
+GET	/chats/{id}	Obtener mensajes de un chat
+POST	/chats/{id}/mensajes	Enviar mensaje
+
+
+FAVORITOS
+Entidad: Favorito, User_Fav
+
+POST	/favoritos	Agregar producto a favoritos
+GET	/favoritos	Listar productos favoritos del usuario
+DELETE	/favoritos/{id}	Quitar producto de favoritos
+
+
+VALORACIONES
+Entidad: Valoracion, User_Valoracion
+
+POST	/valoraciones	Crear valoración sobre un usuario o producto
+GET	/valoraciones	Listar valoraciones (por usuario o producto)
+GET	/valoraciones/{id}	Obtener una valoración específica
+DELETE	/valoraciones/{id}	Eliminar valoración (admin o autor)
+
+
+TRANSACCIONES
+Entidad: User_Producto
+
+POST	/compras	Registrar una compra (vincula usuario-producto)
+GET	/usuarios/{id}/compras	Listar compras del usuario
+GET	/usuarios/{id}/ventas	Listar ventas del usuario

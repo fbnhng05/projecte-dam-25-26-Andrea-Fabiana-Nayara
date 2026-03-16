@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="custom_addons">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/fase_2/repo/custom_addons/custom_addons.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

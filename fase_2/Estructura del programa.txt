@@ -1,0 +1,27 @@
+Estructura del programa que pide el enunciado:
+
+
+-> dentro de com.example.android_loop:
+
+	-> data:
+
+		-> accesoApi: Aquí estarán todas las peticiones a la API.
+
+		-> model (data class): para recibir las respuestas usamos los data class.
+
+		-> repository: aquí está el acceso a lo que recibimos de la API, igual que en acceso a datos, desde aquí llamamos a las peticiones de la API.
+
+	-> vistas:
+
+		
+
+	-> modelos:
+
+		-> Yo no estoy usando modelos de momento pero si necesitáis crearlos, aquí podéis
+
+
+	-> sharedPreferences: guarda el token. Para obtenerlo usad esto:
+
+		val context = LocalContext.current
+    	val prefs = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
+    	val storedToken = prefs.getString("token", null)
