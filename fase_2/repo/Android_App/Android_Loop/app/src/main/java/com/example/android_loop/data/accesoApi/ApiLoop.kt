@@ -1,8 +1,11 @@
 package com.example.android_loop.data.accesoApi
 
+import com.example.android_loop.data.model_dataClass.AddFavoritosResult
+import com.example.android_loop.data.model_dataClass.GetFavoritosResult
 import com.example.android_loop.data.model_dataClass.GetUserDataResult
 import com.example.android_loop.data.model_dataClass.LoginResult
 import com.example.android_loop.data.model_dataClass.RegistroResult
+import com.example.android_loop.data.model_dataClass.RemoveFavoritoResult
 import com.example.android_loop.data.model_dataClass.RpcResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -90,6 +93,84 @@ class ApiLoop(private val cliente: HttpClient = HttpClientProvider.cliente) {
             Result.failure(ex)
         }
     }
-}
 
-// Esto es simplemente para asegurarme que la versión arreglada se suba correctamente a github //
+    suspend fun addFavoritos(token: String, productoId: Int): Result<AddFavoritosResult> {
+
+        return try {
+
+            val response: RpcResponse<AddFavoritosResult> =
+                cliente.post("${Servidor.BASE_URL}/api/v1/loop/favoritos/add") {
+                    header("Authorization", "Bearer $token")
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        buildJsonObject {
+                            put("jsonrpc", "2.0")
+                            put("method", "call")
+                            put("params", buildJsonObject {
+                                put("data", buildJsonObject {
+                                    put("product_id", productoId)
+                                })
+                            })
+                        }
+                    )
+                }.body()
+
+            return Result.success(response.result)
+
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+
+    }
+
+    suspend fun removeFavorito(token: String, productoId: Int): Result<RemoveFavoritoResult> {
+        return try {
+
+            val response: RpcResponse<RemoveFavoritoResult> =
+                cliente.post("${Servidor.BASE_URL}/api/v1/loop/favoritos/remove") {
+                    header("Authorization", "Bearer $token")
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        buildJsonObject {
+                            put("jsonrpc", "2.0")
+                            put("method", "call")
+                            put("params", buildJsonObject {
+                                put("data", buildJsonObject {
+                                    put("producto_id", productoId)
+                                })
+                            })
+                        }
+                    )
+                }.body()
+
+            return Result.success(response.result)
+
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+    }
+
+    suspend fun getUserFavoritos(token: String): Result<GetFavoritosResult> {
+        return try {
+
+            val response: RpcResponse<GetFavoritosResult> =
+                cliente.get("${Servidor.BASE_URL}/api/v1/loop/favoritos") {
+                    header("Authorization", "Bearer $token")
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        buildJsonObject {
+                            put("jsonrpc", "2.0")
+                            put("method", "call")
+                            put("params", buildJsonObject {})
+                        }
+                    )
+                }.body()
+
+            return Result.success(response.result)
+
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+    }
+
+}

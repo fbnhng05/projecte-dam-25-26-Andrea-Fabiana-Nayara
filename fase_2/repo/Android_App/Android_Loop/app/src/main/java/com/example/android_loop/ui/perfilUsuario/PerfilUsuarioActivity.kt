@@ -3,6 +3,7 @@ package com.example.android_loop.ui.perfilUsuario
 import android.content.Context.MODE_PRIVATE
 import android.graphics.BitmapFactory
 import android.util.Base64
+import android.util.Base64.decode
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -81,7 +82,6 @@ fun PerfilUsuario(navController: NavHostController) {
     val perfilState = viewModelGetUserData.getUserDataState
 
     var username by remember { mutableStateOf("María") }
-    var id by remember { mutableIntStateOf(0) }
     var image_1920 by remember { mutableStateOf("") }
     val defaultAvatar = ImageBitmap.imageResource(R.drawable.no_avatar)
     var avatarImage by remember { mutableStateOf<ImageBitmap?>(defaultAvatar) }
@@ -100,13 +100,12 @@ fun PerfilUsuario(navController: NavHostController) {
     LaunchedEffect(perfilState) {
         perfilState?.onSuccess { user ->
             username = user.username
-            id = user.id
             image_1920 = user.image_1920
         }
 
         if (!image_1920.isNullOrBlank() && image_1920 != "false") {
             //conversion base64 a Image
-            val decodedString = Base64.decode(image_1920, Base64.DEFAULT)
+            val decodedString = decode(image_1920, Base64.DEFAULT)
             val bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
             avatarImage = bitmap.asImageBitmap()
         }
@@ -299,9 +298,11 @@ fun TabMenu(navController: NavHostController) {
     val currentRoute = navBackStackEntry?.destination?.route
 
     val items = listOf(
-        "perfilUsuario",
+        "home",
+        "favoritos",
         "pantalla_listado",
         "crear_producto",
+        "perfilUsuario",
     )
 
     NavigationBar(
@@ -315,10 +316,12 @@ fun TabMenu(navController: NavHostController) {
         items.forEachIndexed { index, route ->
 
             val icon = when(route) {
-                "perfilUsuario" -> R.drawable.home
+                "home" -> R.drawable.home
+                "favoritos" -> R.drawable.empty_heart
                 "pantalla_listado" -> R.drawable.shop
                 "crear_producto" -> R.drawable.add
-                else -> R.drawable.home
+                "perfilUsuario" -> R.drawable.user
+                else -> R.drawable.user
             }
 
             NavigationBarItem(
