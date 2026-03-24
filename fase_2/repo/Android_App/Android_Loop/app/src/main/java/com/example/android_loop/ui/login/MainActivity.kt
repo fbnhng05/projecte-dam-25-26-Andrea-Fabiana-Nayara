@@ -65,8 +65,9 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.android_loop.data.Producto.CreateProductScreen
 import com.example.android_loop.data.Producto.ProductScreen
-import com.example.android_loop.data.Producto._02_ProductViewModel
-import com.example.android_loop.ui.detalleProducto.DetalleProductoScreen
+//import com.example.android_loop.data.Producto._02_ProductViewModel
+import com.example.android_loop.ui.Producto.DetalleProductoScreen
+import com.example.android_loop.ui.Producto.ViewModel_Producto
 import com.example.android_loop.ui.registro.Registro
 import com.example.android_loop.ui.ajustes.SettingsScreen
 import com.example.android_loop.ui.favoritos.Favoritos
@@ -78,7 +79,7 @@ import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
 
-    private val viewModelProductos by viewModels<_02_ProductViewModel>()
+    private val viewModelProductos by viewModels<ViewModel_Producto>()
     private val viewModelCart by viewModels<CartViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,6 +87,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
+
+            val context = LocalContext.current          // 👈 AÑADE
+            val prefs = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)  // 👈 AÑADE
+            val token = prefs.getString("token", "") ?: ""  // 👈 AÑADE
             NavHost(
                 navController = navController,
                 startDestination = "login"
@@ -103,7 +108,12 @@ class MainActivity : ComponentActivity() {
                 }
 
                 composable("pantalla_listado") { // pantalla listado productos
-                    ProductScreen(viewModelProductos, navController, viewModelCart)
+
+                    ProductScreen(
+                        viewModel = viewModelProductos,
+                        navController = navController,
+                        cartViewModel = viewModelCart
+                    )
                 }
 
                 composable(
@@ -112,6 +122,7 @@ class MainActivity : ComponentActivity() {
                 ) { backStackEntry ->
                     val productId = backStackEntry.arguments?.getInt("productId") ?: return@composable
                     DetalleProductoScreen(
+                        token = token,
                         productId = productId,
                         viewModel = viewModelProductos,
                         cartViewModel = viewModelCart,

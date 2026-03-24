@@ -1,5 +1,6 @@
 package com.example.android_loop.data.Producto
 
+import android.content.Context.MODE_PRIVATE
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,9 +13,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.android_loop.R
 import com.example.android_loop.ui.Producto.ViewModel_Producto
 import com.example.android_loop.ui.shoppingCart.CartViewModel
@@ -22,11 +25,16 @@ import com.example.android_loop.ui.shoppingCart.CartViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductScreen(
-    token: String,
     viewModel: ViewModel_Producto,
-    navController: NavController,
+    navController: NavHostController,
     cartViewModel: CartViewModel
 ) {
+
+    //traer token de login
+    val context = LocalContext.current
+    val token = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
+        .getString("token", "") ?: ""
+
     val products = viewModel.products
     val isLoading = viewModel.isLoading
     val error = viewModel.errorMessage

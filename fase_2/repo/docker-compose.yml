@@ -29,6 +29,7 @@ services:
       - HOST=db
       - USER=odoo
       - PASSWORD=odoo
+      - ADMIN_PASSWD=admin
     # Indica que pasa ese parametro al arrancar el servicio Odoo
     command: --dev=all 
 #Definimos el servicio de la base de datos

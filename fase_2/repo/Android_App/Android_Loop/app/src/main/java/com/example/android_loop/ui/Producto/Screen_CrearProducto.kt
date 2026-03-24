@@ -1,5 +1,6 @@
 package com.example.android_loop.data.Producto
 
+import android.content.Context.MODE_PRIVATE
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -28,18 +29,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.android_loop.ui.Producto.ViewModel_Producto
 import java.text.SimpleDateFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateProductScreen(
-    viewModel: _02_ProductViewModel,
+    viewModel: ViewModel_Producto,
     navController: NavController
 ) {
 
 
     val context = LocalContext.current
+
+    // Recuperamos el token guardado en el login
+    val prefs = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
+    val token = prefs.getString("token", "") ?: ""
+
     val scrollState = rememberScrollState()
 
     var nombre by rememberSaveable { mutableStateOf("") }
@@ -88,7 +95,7 @@ fun CreateProductScreen(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.loadEtiquetas()
+        viewModel.loadEtiquetas(token)
     }
 
     if (showDatePicker) {
@@ -341,6 +348,7 @@ fun CreateProductScreen(
                 }
 
                 viewModel.createProduct(
+                    token = token,
                     context = context,
                     nombre = nombre,
                     descripcion = descripcion,
