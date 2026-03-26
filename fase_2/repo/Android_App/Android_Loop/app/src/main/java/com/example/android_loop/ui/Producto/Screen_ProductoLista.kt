@@ -77,14 +77,6 @@ fun ProductScreen(
                 ),
                 actions = {
 
-                    // 🔍 Buscar
-                    IconButton(onClick = { }) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Buscar"
-                        )
-                    }
-
                     // 🛒 Carrito
                     BadgedBox(
                         badge = {
