@@ -20,7 +20,7 @@ class LoginViewModel(private val repository: UserRepository = UserRepository()) 
 
             loginState = result.fold(
                 onSuccess = { LoginUiState.Success(it) },
-                onFailure = { LoginUiState.Error(it.message ?: "Error") }
+                onFailure = { LoginUiState.Error("Usuario o contraseña incorrectos") }
             )
         }
     }

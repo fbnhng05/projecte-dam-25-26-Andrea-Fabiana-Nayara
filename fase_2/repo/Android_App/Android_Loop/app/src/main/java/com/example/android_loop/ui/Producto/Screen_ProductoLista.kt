@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,9 +19,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.android_loop.R
 import com.example.android_loop.ui.Producto.ViewModel_Producto
 import com.example.android_loop.ui.shoppingCart.CartViewModel
+import com.google.androidgamesdk.gametextinput.Settings
+import com.tuapp.ui.theme.Primary
+import android.content.Context.MODE_PRIVATE
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,29 +67,44 @@ fun ProductScreen(
                 title = {
                     Text(
                         "Tienda",
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.titleLarge
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF003459),
+                    containerColor = Primary,
                     titleContentColor = Color.White,
                     actionIconContentColor = Color.White
                 ),
                 actions = {
+
+                    // 🛒 Carrito
                     BadgedBox(
                         badge = {
                             if (cartCount > 0) {
-                                Badge { Text("$cartCount") }
+                                Badge {
+                                    Text("$cartCount")
+                                }
                             }
                         }
                     ) {
-                        IconButton(onClick = { navController.navigate("carrito") }) {
+                        IconButton(onClick = {
+                            navController.navigate("carrito")
+                        }) {
                             Icon(
-                                Icons.Default.ShoppingCart,
-                                contentDescription = "Carrito",
-                                tint = Color.White
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = "Carrito"
                             )
                         }
+                    }
+
+                    // ⚙ Ajustes
+                    IconButton(onClick = {
+                        navController.navigate("ajustes")
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Ajustes"
+                        )
                     }
                 }
             )
@@ -174,3 +196,4 @@ fun ProductScreen(
         }
     }
 }
+
