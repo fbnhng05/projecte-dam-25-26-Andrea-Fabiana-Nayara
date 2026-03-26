@@ -265,6 +265,11 @@ fun PerfilVendedorScreen(
                                 }
                             }
 
+                            comentariosViewModel.errorMessage?.let { error ->
+                                Spacer(Modifier.height(8.dp))
+                                Text(error, color = Color.Red, fontSize = 13.sp)
+                            }
+
                             if (!esMiPerfil) {
                                 Spacer(Modifier.height(12.dp))
                                 HorizontalDivider()
