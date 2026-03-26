@@ -55,6 +55,7 @@ fun TabMenu(navController: NavHostController){
 
                 NavigationBarItem(
                     selected = currentRoute == route,
+                    enabled = currentRoute != route, //desactiva el icono cuando este en la propia pantalla
                     onClick = { navController.navigate(route) {
                         popUpTo(navController.graph.startDestinationId)
                         launchSingleTop = true
