@@ -162,6 +162,22 @@ class MainActivity : ComponentActivity() {
                     composable("ajustes") { // pantalla de ajustes
                         SettingsScreen(navController)
                     }
+
+                    composable(
+                        route = "perfilVendedor/{vendedorId}/{vendedorNombre}",
+                        arguments = listOf(
+                            navArgument("vendedorId") { type = NavType.IntType },
+                            navArgument("vendedorNombre") { type = NavType.StringType }
+                        )
+                    ) { backStackEntry ->
+                        val vendedorId = backStackEntry.arguments?.getInt("vendedorId") ?: return@composable
+                        val vendedorNombre = backStackEntry.arguments?.getString("vendedorNombre") ?: ""
+                        PerfilVendedorScreen(
+                            vendedorId = vendedorId,
+                            vendedorNombre = vendedorNombre,
+                            navController = navController
+                        )
+                    }
                 }
             }
         }
