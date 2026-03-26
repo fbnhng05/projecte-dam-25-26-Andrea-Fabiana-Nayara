@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import android.net.Uri
 import androidx.navigation.NavController
 import com.example.android_loop.data.Producto.ImagenConDatos
 import com.example.android_loop.ui.shoppingCart.CartViewModel
@@ -131,6 +132,18 @@ fun DetalleProductoScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                OutlinedButton(
+                    onClick = {
+                        val nombreEncoded = Uri.encode(product.propietario.nombre)
+                        navController.navigate("perfilVendedor/${product.propietario.id}/$nombreEncoded")
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Ver perfil del vendedor")
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Button(
                     onClick = {
                         cartViewModel.addToCart(product)
@@ -142,6 +155,7 @@ fun DetalleProductoScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Añadir al carrito")
                 }
+
             }
         }
     }

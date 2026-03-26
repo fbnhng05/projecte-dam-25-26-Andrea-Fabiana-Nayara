@@ -23,6 +23,8 @@ import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class ApiProductLoop(
     private val cliente: HttpClient = HttpClientProvider.cliente
@@ -142,13 +144,20 @@ class ApiProductLoop(
             val token = TokenManager.getToken()
                 ?: return Result.failure(Exception("Token no disponible"))
 
-            val response: ComentariosResponse =
-                cliente.get("${Servidor.BASE_URL}/api/v1/loop/productos/$productId/comentarios") {
+            val response: RpcResponse<ComentariosResponse> =
+                cliente.get("${Servidor.BASE_URL}/api/v1/loop/usuarios/$productId/comentarios") {
                     header("Authorization", "Bearer $token")
-                    accept(ContentType.Application.Json)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        buildJsonObject {
+                            put("jsonrpc", "2.0")
+                            put("method", "call")
+                            put("params", buildJsonObject {})
+                        }
+                    )
                 }.body()
 
-            Result.success(response.comentarios)
+            Result.success(response.result.comentarios)
 
         } catch (ex: Exception) {
             Result.failure(ex)

@@ -30,11 +30,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarDefaults
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -54,7 +52,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -64,26 +61,26 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.android_loop.ui.perfilUsuario.PerfilUsuario
-import com.example.android_loop.R
-import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.android_loop.R
 import com.example.android_loop.data.Producto.CreateProductScreen
 import com.example.android_loop.data.Producto.ProductScreen
 import com.example.android_loop.ui.Producto.DetalleProductoScreen
 import com.example.android_loop.ui.Producto.ViewModel_Producto
 import com.example.android_loop.ui.TabMenu
-import com.example.android_loop.ui.registro.Registro
 import com.example.android_loop.ui.ajustes.SettingsScreen
 import com.example.android_loop.ui.favoritos.Favoritos
+import com.example.android_loop.ui.perfilUsuario.PerfilUsuario
+import com.example.android_loop.ui.perfilVendedor.PerfilVendedorScreen
+import com.example.android_loop.ui.registro.Registro
 import com.example.android_loop.ui.shoppingCart.CartScreen
 import com.example.android_loop.ui.shoppingCart.CartViewModel
 import java.security.MessageDigest
-import kotlin.getValue
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
@@ -97,17 +94,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
 
-            val context = LocalContext.current          // 👈 AÑADE
-            val prefs = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)  // 👈 AÑADE
-            val token = prefs.getString("token", "") ?: ""  // 👈 AÑADE
+            val context = LocalContext.current
+            val prefs = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
+            val token = prefs.getString("token", "") ?: ""
 
-            //variables para el bottomBar--> menu inferior de pantallas
             val rutasSinMenu = listOf("login", "registro")
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 
             Scaffold(
-                //este Bottom Bar va aparecer en todas las pantallas el cual contiene el menu
                 bottomBar = {
                     if (currentRoute !in rutasSinMenu) {
                         TabMenu(navController = navController)
@@ -118,34 +113,27 @@ class MainActivity : ComponentActivity() {
                 NavHost(
                     navController = navController,
                     startDestination = "login",
-                    modifier = Modifier.padding(paddingValues) // evita que el contenido quede debajo del menú
+                    modifier = Modifier.padding(paddingValues)
                 ) {
-
-                    // Rutas de navegación
-
-                    composable("login") { Loggeo(navController) } // login
-                    composable("perfilUsuario") { PerfilUsuario(navController) } // perfil usuario
-                    composable("favoritos") { Favoritos(navController) } // favoritos
-                    composable("registro") { Registro(navController) } // registro
-                    composable("crear_producto") { // crear producto
+                    composable("login") { Loggeo(navController) }
+                    composable("perfilUsuario") { PerfilUsuario(navController) }
+                    composable("favoritos") { Favoritos(navController) }
+                    composable("registro") { Registro(navController) }
+                    composable("crear_producto") {
                         CreateProductScreen(viewModelProductos, navController)
                     }
-
-                    composable("pantalla_listado") { // pantalla listado productos
-
+                    composable("pantalla_listado") {
                         ProductScreen(
                             viewModel = viewModelProductos,
                             navController = navController,
                             cartViewModel = viewModelCart
                         )
                     }
-
                     composable(
                         route = "detalle_producto/{productId}",
                         arguments = listOf(navArgument("productId") { type = NavType.IntType })
                     ) { backStackEntry ->
-                        val productId =
-                            backStackEntry.arguments?.getInt("productId") ?: return@composable
+                        val productId = backStackEntry.arguments?.getInt("productId") ?: return@composable
                         DetalleProductoScreen(
                             token = token,
                             productId = productId,
@@ -154,15 +142,10 @@ class MainActivity : ComponentActivity() {
                             navController = navController
                         )
                     }
+                    composable("carrito") { CartScreen(viewModelCart, navController) }
+                    composable("ajustes") { SettingsScreen(navController) }
 
-                    composable("carrito") { // carrito de compra
-                        CartScreen(viewModelCart, navController)
-                    }
-
-                    composable("ajustes") { // pantalla de ajustes
-                        SettingsScreen(navController)
-                    }
-
+                    // Ruta añadida por tu compañera
                     composable(
                         route = "perfilVendedor/{vendedorId}/{vendedorNombre}",
                         arguments = listOf(
@@ -182,201 +165,192 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
 
-    @Composable
-    fun Loggeo(navController: NavHostController) {
+@Composable
+fun Loggeo(navController: NavHostController) {
 
-        val viewModelLogin: LoginViewModel = viewModel()
-        val loginState = viewModelLogin.loginState
-        val snackbarHostState = remember { SnackbarHostState() }
+    val viewModelLogin: LoginViewModel = viewModel()
+    val loginState = viewModelLogin.loginState
+    val snackbarHostState = remember { SnackbarHostState() }
 
-        var username by rememberSaveable { mutableStateOf("") }
-        var passwd by rememberSaveable { mutableStateOf("") }
-        var errorNombre by remember { mutableStateOf(false) }
-        var errorPasswd by remember { mutableStateOf(false) }
+    var username by rememberSaveable { mutableStateOf("") }
+    var passwd by rememberSaveable { mutableStateOf("") }
+    var errorNombre by remember { mutableStateOf(false) }
+    var errorPasswd by remember { mutableStateOf(false) }
 
-        val logo = R.drawable.loop_logo
-        val context = LocalContext.current
+    val logo = R.drawable.loop_logo
+    val context = LocalContext.current
 
-        Scaffold(
-            snackbarHost = {
-                SnackbarHost(
-                    hostState = snackbarHostState,
-                    snackbar = { data ->
-                        Snackbar(
-                            snackbarData = data,
-                            shape = RoundedCornerShape(12.dp),
-                            containerColor = Color(0xFF003459),
-                            contentColor = Color.White
-                        )
-                    }
-                )
-            }
-        ) { paddingValues ->
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                snackbar = { data ->
+                    Snackbar(
+                        snackbarData = data,
+                        shape = RoundedCornerShape(12.dp),
+                        containerColor = Color(0xFFE63946),
+                        contentColor = Color.White
+                    )
+                }
+            )
+        }
+    ) { paddingValues ->
 
+        Box(
+            Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(Color.Transparent)
+        ) {
+            // Círculo azul decorativo
             Box(
                 Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .background(Color.Transparent)
-            ) {
-                // Círculo azul decorativo
-                Box(
-                    Modifier
-                        .size(830.dp)
-                        .align(Alignment.TopEnd)
-                        .offset(x = 10.dp, y = (-500).dp)
-                        .drawBehind {
-                            drawCircle(
-                                color = Color(0xFF003459),
-                                radius = size.maxDimension * 0.5f,
-                                center = Offset(x = size.width * 0.8f, y = size.height / 1.25f)
-                            )
-                        }
-                )
-
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Top
-                ) {
-                    Row(Modifier.padding(top = 32.dp)) {
-                        Text(
-                            "¡BIENVENIDO!",
-                            textAlign = TextAlign.Center,
-                            color = Color.White,
-                            fontSize = 40.sp,
-                            fontFamily = FontFamily.SansSerif,
-                            lineHeight = 50.sp
+                    .size(830.dp)
+                    .align(Alignment.TopEnd)
+                    .offset(x = 10.dp, y = (-500).dp)
+                    .drawBehind {
+                        drawCircle(
+                            color = Color(0xFF003459),
+                            radius = size.maxDimension * 0.5f,
+                            center = Offset(x = size.width * 0.8f, y = size.height / 1.25f)
                         )
                     }
+            )
 
-                    Row(Modifier.height(500.dp)) {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight()
-                                .padding(horizontal = 16.dp)
-                                .padding(top = 24.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                            elevation = CardDefaults.cardElevation(4.dp),
-                            shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
+            ) {
+                Row(Modifier.padding(top = 32.dp)) {
+                    Text(
+                        "¡BIENVENIDO!",
+                        textAlign = TextAlign.Center,
+                        color = Color.White,
+                        fontSize = 40.sp,
+                        fontFamily = FontFamily.SansSerif,
+                        lineHeight = 50.sp
+                    )
+                }
+
+                Row(Modifier.height(500.dp)) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .padding(horizontal = 16.dp)
+                            .padding(top = 24.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+                    ) {
+                        Box(
+                            Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.BottomCenter
                         ) {
-                            Box(
-                                Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.BottomCenter
+                            Column(
+                                Modifier.fillMaxSize().padding(top = 24.dp),
+                                verticalArrangement = Arrangement.Top,
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Column(
-                                    Modifier.fillMaxSize().padding(top = 24.dp),
-                                    verticalArrangement = Arrangement.Top,
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                Image(
+                                    painter = painterResource(id = logo),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(200.dp)
+                                )
+
+                                Spacer(Modifier.height(16.dp))
+
+                                OutlinedTextField(
+                                    value = username,
+                                    onValueChange = { username = it; errorNombre = it.isEmpty() },
+                                    label = { Text("Introduce el nombre de usuario") },
+                                    isError = errorNombre
+                                )
+
+                                Spacer(Modifier.height(8.dp))
+
+                                OutlinedTextField(
+                                    value = passwd,
+                                    onValueChange = { passwd = it; errorPasswd = it.isEmpty() },
+                                    label = { Text("Introduce la contraseña") },
+                                    isError = errorPasswd,
+                                    visualTransformation = PasswordVisualTransformation(),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                                )
+
+                                Spacer(Modifier.height(12.dp))
+
+                                Button(
+                                    onClick = {
+                                        errorNombre = username.isEmpty()
+                                        errorPasswd = passwd.isEmpty()
+                                        if (!errorNombre && !errorPasswd)
+                                            viewModelLogin.login(username, encriptarPasswd(passwd))
+                                    },
+                                    Modifier.padding(bottom = 5.dp).fillMaxWidth(0.6f),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF003459),
+                                        contentColor = Color.White
+                                    ),
+                                    shape = RoundedCornerShape(8.dp)
                                 ) {
-                                    Image(
-                                        painter = painterResource(id = logo),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(200.dp)
-                                    )
-
-                                    Spacer(Modifier.height(16.dp))
-
-                                    OutlinedTextField(
-                                        value = username,
-                                        onValueChange = {
-                                            username = it; errorNombre = it.isEmpty()
-                                        },
-                                        label = { Text("Introduce el nombre de usuario") },
-                                        isError = errorNombre
-                                    )
-
-                                    Spacer(Modifier.height(8.dp))
-
-                                    OutlinedTextField(
-                                        value = passwd,
-                                        onValueChange = { passwd = it; errorPasswd = it.isEmpty() },
-                                        label = { Text("Introduce la contraseña") },
-                                        isError = errorPasswd,
-                                        visualTransformation = PasswordVisualTransformation(),
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-                                    )
-
-                                    Spacer(Modifier.height(12.dp))
-
-                                    Button(
-                                        onClick = {
-                                            errorNombre = username.isEmpty()
-                                            errorPasswd = passwd.isEmpty()
-                                            if (!errorNombre && !errorPasswd)
-                                                viewModelLogin.login(
-                                                    username,
-                                                    encriptarPasswd(passwd)
-                                                )
-                                        },
-                                        Modifier.padding(bottom = 5.dp).fillMaxWidth(0.6f),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color(0xFF003459),
-                                            contentColor = Color.White
-                                        ),
-                                        shape = RoundedCornerShape(8.dp)
-                                    ) {
-                                        Text("INICIAR SESIÓN")
-                                    }
-
-
-                                    LaunchedEffect(loginState) {
-                                        if (loginState is LoginUiState.Success) {
-                                            val token = loginState.token
-                                            val prefs = context.getSharedPreferences(
-                                                "loop_prefs",
-                                                MODE_PRIVATE
-                                            )
-                                            prefs.edit { putString("token", token) }
-                                            navController.navigate("pantalla_listado")
-                                        }
-                                        if (loginState is LoginUiState.Error) {
-                                            val msg = (loginState as LoginUiState.Error).message
-                                            snackbarHostState.showSnackbar(
-                                                message = msg,
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                    }
+                                    Text("INICIAR SESIÓN")
                                 }
 
-                                Row {
-                                    Text(
-                                        text = "Crear nueva cuenta",
-                                        Modifier.padding(bottom = 20.dp).clickable {
-                                            navController.navigate("registro")
-                                        },
-                                        textDecoration = TextDecoration.Underline,
-                                        color = Color(0xFF003459)
-                                    )
+                                LaunchedEffect(loginState) {
+                                    if (loginState is LoginUiState.Success) {
+                                        val token = loginState.token
+                                        val prefs = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
+                                        prefs.edit { putString("token", token) }
+                                        navController.navigate("pantalla_listado")
+                                    }
+                                    if (loginState is LoginUiState.Error) {
+                                        val msg = (loginState as LoginUiState.Error).message
+                                        snackbarHostState.showSnackbar(
+                                            message = msg,
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
                                 }
+                            }
+
+                            Row {
+                                Text(
+                                    text = "Crear nueva cuenta",
+                                    Modifier.padding(bottom = 20.dp).clickable {
+                                        navController.navigate("registro")
+                                    },
+                                    textDecoration = TextDecoration.Underline,
+                                    color = Color(0xFF003459)
+                                )
                             }
                         }
                     }
                 }
+            }
 
-                // Loading - fuera de la Column, dentro del Box principal
-                if (loginState is LoginUiState.Loading) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.4f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = Color.Blue)
-                    }
+            // Loading
+            if (loginState is LoginUiState.Loading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.4f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color.Blue)
                 }
             }
         }
     }
+}
 
-    fun encriptarPasswd(passwd: String): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        val hashBytes = digest.digest(passwd.toByteArray(Charsets.UTF_8))
-        return hashBytes.fold("") { str, byte -> str + "%02x".format(byte) }
-    }
+fun encriptarPasswd(passwd: String): String {
+    val digest = MessageDigest.getInstance("SHA-256")
+    val hashBytes = digest.digest(passwd.toByteArray(Charsets.UTF_8))
+    return hashBytes.fold("") { str, byte -> str + "%02x".format(byte) }
 }

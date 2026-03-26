@@ -9,11 +9,19 @@ data class ComentariosResponse(
 
 @Serializable
 data class CreateComentarioRequest(
-    val producto_id: Int,
-    val contenido: String
+    val data: CreateComentarioData
+)
+
+@Serializable
+data class CreateComentarioData(
+    val partner_id: Int,
+    val contenido: String,
+    val estado: String = "published"
 )
 
 @Serializable
 data class CreateComentarioResponse(
-    val id: Int
+    val success: Boolean? = null,
+    val comentario_id: Int? = null,
+    val error: String? = null
 )

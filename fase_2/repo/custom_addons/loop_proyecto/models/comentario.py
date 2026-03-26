@@ -15,9 +15,9 @@ class Comentario(models.Model):
         readonly=True
     )
     
-    producto_id = fields.Many2one(
-        'loop_proyecto.producto',
-        string='Producto',
+    partner_id = fields.Many2one(
+        'res.partner',
+        string='Usuario valorado',
         required=True,
         index=True,
         ondelete='cascade'

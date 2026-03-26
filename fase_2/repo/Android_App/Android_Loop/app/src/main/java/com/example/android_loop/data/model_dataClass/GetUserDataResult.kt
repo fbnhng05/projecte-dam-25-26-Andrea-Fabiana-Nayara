@@ -11,5 +11,5 @@ data class GetUserDataResult (
     val phone: String?,
     val mobile: String?,
     val idioma: String,
-    val image_1920: String
+    val image_1920: String = ""
 )

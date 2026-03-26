@@ -32,18 +32,18 @@ class controladorComentario(http.Controller):
         if not data:
             return {'error': 'No se han enviado datos'}
         
-        required = ['producto_id','contenido', 'estado']
-        
+        required = ['partner_id', 'contenido']
+
         for field in required:
             if field not in data:
                 return {'error': f'Falta el campo {field}'}
-            
+
         try:
             comentario = request.env['loop_proyecto.comentario'].sudo().create({
-                'producto_id': data['producto_id'],
+                'partner_id': data['partner_id'],
                 'comentador_id': user.id,
                 'contenido': data['contenido'],
-                'estado': data['estado'],
+                'estado': data.get('estado', 'published'),
             })
             return {'success': True, 'comentario_id': comentario.id}
         except Exception as e:
@@ -86,6 +86,34 @@ class controladorComentario(http.Controller):
         except Exception as e:
             return {'error': str(e)}
         
+    # --------------------------------------------------------------------------
+    #  OBTENER COMENTARIOS DE UN PRODUCTO (GET)
+    # --------------------------------------------------------------------------
+    @http.route('/api/v1/loop/usuarios/<int:partner_id>/comentarios', auth='none', methods=['GET'], csrf=False, type='json')
+    def get_comentarios_usuario(self, partner_id):
+
+        user = get_current_user_from_token()
+
+        if not user:
+            return {'error': 'Unauthorized'}
+
+        comentarios = request.env['loop_proyecto.comentario'].sudo().search([
+            ('partner_id', '=', partner_id),
+            ('estado', '=', 'published')
+        ])
+
+        return {
+            'comentarios': [{
+                'id': c.id,
+                'contenido': c.contenido,
+                'fecha_creacion': str(c.fecha_creacion),
+                'comentador': c.comentador_id.name,
+                'estado': c.estado,
+                'moderador': c.moderador_id.name if c.moderador_id else None,
+                'fecha_moderacion': str(c.fecha_moderacion) if c.fecha_moderacion else None,
+            } for c in comentarios]
+        }
+
     # --------------------------------------------------------------------------
     #  CONSULTAR COMENTARIO (GET)
     # --------------------------------------------------------------------------
