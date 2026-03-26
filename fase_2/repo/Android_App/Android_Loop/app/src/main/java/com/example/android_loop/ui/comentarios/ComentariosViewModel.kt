@@ -55,7 +55,7 @@ class ComentariosViewModel : ViewModel() {
         viewModelScope.launch {
             isLoading = true
             errorMessage = null
-            api.crearComentario(CreateComentarioRequest(data = CreateComentarioData(usuarioId, contenido)))
+            api.crearComentario(CreateComentarioRequest(data = CreateComentarioData(usuarioId, contenido, "published")))
                 .onSuccess { response ->
                     if (response.success == true) {
                         comentarioEnviado = true

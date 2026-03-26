@@ -71,8 +71,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.android_loop.R
 import com.example.android_loop.ui.comentarios.ComentariosViewModel
 import com.example.android_loop.ui.comentarios.ComentarioBurbuja
-import com.example.android_loop.ui.comentarios.CreateComentarioData
-import com.example.android_loop.ui.comentarios.CreateComentarioRequest
 import com.example.android_loop.ui.theme.Android_LoopTheme
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items

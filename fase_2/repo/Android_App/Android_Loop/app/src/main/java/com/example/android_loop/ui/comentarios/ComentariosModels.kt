@@ -16,7 +16,7 @@ data class CreateComentarioRequest(
 data class CreateComentarioData(
     val partner_id: Int,
     val contenido: String,
-    val estado: String = "published"
+    val estado: String
 )
 
 @Serializable
