@@ -52,10 +52,4 @@ fun SettingsScreen(navController: NavHostController) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun SettingsScreenPreview() {
-    Android_LoopTheme {
-        SettingsScreen(navController = rememberNavController())
-    }
-}
+

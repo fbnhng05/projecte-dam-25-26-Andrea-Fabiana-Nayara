@@ -1,8 +1,6 @@
 package com.tuapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
-
-// Primary colors (color principal de la app)
 val Primary = Color(0xFF003459)        // Azul oscuro
 val OnPrimary = Color(0xFFFFFFFF)      // Color del texto sobre el primary
 

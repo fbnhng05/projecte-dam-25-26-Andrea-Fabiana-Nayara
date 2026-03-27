@@ -1,3 +1,7 @@
+// ARCHIVO DESACTIVADO - versión antigua de la pantalla crear producto
+// Se mantiene comentado como referencia. La versión activa es Screen_CrearProducto.kt
+
+/*
 package com.example.android_loop.data.Producto
 
 import android.net.Uri
@@ -371,3 +375,4 @@ fun CreateProductScreen(
         Spacer(modifier = Modifier.height(40.dp))
     }
 }
+*/
