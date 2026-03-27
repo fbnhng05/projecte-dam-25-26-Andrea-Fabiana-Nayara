@@ -11,5 +11,11 @@ object Servidor {
 
      val BASE_URL = "http://localhost:8069"  // Solo para pruebas en el emulador
 
+<<<<<<< HEAD
      //val BASE_URL = "http://172.19.224.1:8069"  // Solo para pruebas en el emulador
 } cmonteagudo4
+=======
+     val BASE_URL = "http://10.218.139.229:8069"  // Solo para pruebas en el emulador
+
+}
+>>>>>>> b2df22295945811293566c48f0c23a8e4eb66278

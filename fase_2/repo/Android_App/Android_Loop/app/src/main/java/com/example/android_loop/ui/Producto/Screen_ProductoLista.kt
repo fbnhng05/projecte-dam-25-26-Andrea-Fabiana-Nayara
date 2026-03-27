@@ -1,5 +1,7 @@
 package com.example.android_loop.data.Producto
 
+
+import android.annotation.SuppressLint
 import android.content.Context.MODE_PRIVATE
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,17 +19,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.android_loop.R
 import com.example.android_loop.ui.Producto.ViewModel_Producto
 import com.example.android_loop.ui.shoppingCart.CartViewModel
-import com.google.androidgamesdk.gametextinput.Settings
 import com.tuapp.ui.theme.Primary
-import android.content.Context.MODE_PRIVATE
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

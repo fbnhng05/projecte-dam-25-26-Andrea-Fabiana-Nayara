@@ -56,6 +56,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
@@ -72,7 +73,7 @@ import com.example.android_loop.data.Producto.CreateProductScreen
 import com.example.android_loop.data.Producto.ProductScreen
 import com.example.android_loop.ui.Producto.DetalleProductoScreen
 import com.example.android_loop.ui.Producto.ViewModel_Producto
-import com.example.android_loop.ui.TabMenu
+import com.example.android_loop.funciones.TabMenu
 import com.example.android_loop.ui.ajustes.SettingsScreen
 import com.example.android_loop.ui.favoritos.Favoritos
 import com.example.android_loop.ui.perfilUsuario.PerfilUsuario
@@ -80,10 +81,9 @@ import com.example.android_loop.ui.perfilVendedor.PerfilVendedorScreen // necesa
 import com.example.android_loop.ui.registro.Registro
 import com.example.android_loop.ui.shoppingCart.CartScreen
 import com.example.android_loop.ui.shoppingCart.CartViewModel
+import com.example.android_loop.ui.theme.Android_LoopTheme
 import java.security.MessageDigest
 import com.tuapp.ui.theme.Primary
-import com.tuapp.ui.theme.Secondary
-import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
 
@@ -100,7 +100,7 @@ class MainActivity : ComponentActivity() {
             val prefs = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
             val token = prefs.getString("token", "") ?: ""
 
-            val rutasSinMenu = listOf("login", "registro")
+            val rutasSinMenu = listOf("login", "registro", "crear_producto")
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 

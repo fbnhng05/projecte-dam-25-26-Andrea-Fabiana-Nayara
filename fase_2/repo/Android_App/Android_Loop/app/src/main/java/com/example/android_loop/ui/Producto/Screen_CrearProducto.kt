@@ -10,6 +10,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.draw.clip         // Permite recortar un composable con una forma (ej. esquinas redondeadas)
+import androidx.compose.ui.layout.ContentScale  // Define cómo se escala/recorta una imagen dentro de su espacio
+// Brush ya no se necesita aquí, se usa dentro de PantallaHeader
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -30,6 +33,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.android_loop.ui.Producto.ViewModel_Producto
+import com.tuapp.ui.theme.Primary    // Color azul oscuro de nuestra paleta (#003459)
+import com.tuapp.ui.theme.Secondary  // Color azul océano de nuestra paleta (#007EA7)
+// OnPrimary ya no se necesita aquí, se usa dentro de PantallaHeader
+import com.example.android_loop.ui.componentes.PantallaHeader  // Nuestro header reutilizable
+import com.example.android_loop.ui.componentes.LoopBoton       // Nuestro botón reutilizable
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -73,7 +81,8 @@ fun CreateProductScreen(
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
-        imageUris.clear()
+        // addAll añade las nuevas URIs a la lista sin borrar las que ya había
+        // Antes había un imageUris.clear() aquí que las eliminaba cada vez
         imageUris.addAll(uris)
     }
 
@@ -118,21 +127,23 @@ fun CreateProductScreen(
         }
     }
 
+    // Column exterior SIN padding para que el header llegue a los bordes
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text("Crear Producto", style = MaterialTheme.typography.titleLarge)
+        // El header va aquí fuera del padding, a tope con los bordes de la pantalla
+        PantallaHeader(titulo = "Crear Producto")
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Fotos", style = MaterialTheme.typography.titleMedium)
+        // Column interior CON padding para el resto del contenido
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -150,7 +161,10 @@ fun CreateProductScreen(
                     Image(
                         painter = rememberAsyncImagePainter(uri),
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize()
+                        contentScale = ContentScale.Crop, // Recorta la imagen para que llene el cuadrado sin deformarse
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(12.dp)) // Aplica esquinas redondeadas igual que el botón "Subir fotos"
                     )
 
                     // Botón eliminar
@@ -200,32 +214,49 @@ fun CreateProductScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        // Colores personalizados para todos los OutlinedTextField
+        // Se define una sola vez y se reutiliza en cada campo para no repetir código
+        val campoColores = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Secondary,      // Borde cuando el campo está activo (al hacer click)
+            unfocusedBorderColor = Primary,      // Borde cuando el campo no está activo
+            focusedLabelColor = Secondary,       // Label (ej. "Nombre") cuando el campo está activo
+            unfocusedLabelColor = Primary,       // Label cuando el campo no está activo
+            cursorColor = Secondary,             // Color del cursor de escritura
+            // Los campos "disabled" (como la fecha) también aplican estos colores
+            disabledBorderColor = Primary,       // Borde cuando el campo está deshabilitado
+            disabledLabelColor = Primary         // Label cuando el campo está deshabilitado
+        )
+
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
             label = { Text("Nombre") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = campoColores  // Aplicamos los colores definidos arriba
         )
 
         OutlinedTextField(
             value = descripcion,
             onValueChange = { descripcion = it },
             label = { Text("Descripción") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = campoColores
         )
 
         OutlinedTextField(
             value = precio,
             onValueChange = { precio = it },
             label = { Text("Precio") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = campoColores
         )
 
         OutlinedTextField(
             value = ubicacion,
             onValueChange = { ubicacion = it },
             label = { Text("Ubicación") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = campoColores
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -242,7 +273,8 @@ fun CreateProductScreen(
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Estado") },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
+                modifier = Modifier.menuAnchor().fillMaxWidth(),
+                colors = campoColores  // Aplicamos los mismos colores de la paleta
             )
             ExposedDropdownMenu(
                 expanded = expandedEstado,
@@ -297,7 +329,8 @@ fun CreateProductScreen(
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Categoría") },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
+                modifier = Modifier.menuAnchor().fillMaxWidth(),
+                colors = campoColores  // Aplicamos los mismos colores de la paleta
             )
             ExposedDropdownMenu(
                 expanded = expandedCategoria,
@@ -329,22 +362,28 @@ fun CreateProductScreen(
                 readOnly = true,
                 label = { Text("Antigüedad") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = false
+                enabled = false,
+                // "enabled = false" hace que use los colores "disabled".
+                // Por eso añadimos disabledBorderColor y disabledLabelColor en campoColores
+                colors = campoColores
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
+        // Reemplazamos el Button genérico por nuestro componente LoopBoton
+        // La lógica de validación y guardado va dentro del onClick igual que antes
+        LoopBoton(
+            texto = "Guardar Producto",
             onClick = {
 
                 if (selectedDate.isEmpty()) {
                     viewModel.errorMessage = "Selecciona una fecha"
-                    return@Button
+                    return@LoopBoton
                 }
 
                 if (imageUris.isEmpty()) {
                     viewModel.errorMessage = "Selecciona al menos una imagen"
-                    return@Button
+                    return@LoopBoton
                 }
 
                 viewModel.createProduct(
@@ -359,11 +398,8 @@ fun CreateProductScreen(
                     categoriaId = categoriaId,
                     imageUris = imageUris
                 )
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Guardar Producto")
-        }
+            }
+        )
 
         viewModel.errorMessage?.let {
             Spacer(modifier = Modifier.height(8.dp))
@@ -374,5 +410,7 @@ fun CreateProductScreen(
         }
 
         Spacer(modifier = Modifier.height(40.dp))
-    }
+
+        } // Cierre del Column interior (el que tiene padding)
+    } // Cierre del Column exterior (el que tiene el scroll)
 }
