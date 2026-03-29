@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+<record id="action_report_producto" model="ir.actions.report">
+    <field name="name">Ficha de Producto</field>
+    <field name="model">loop_proyecto.producto</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">loop_proyecto.report_producto_document</field>
+    <field name="report_file">loop_proyecto.report_producto_document</field>
+    <field name="print_report_name">'Producto - %s' % (object.nombre)</field>
+</record>
+
+
+    <template id="report_producto_document">
+    <t t-call="web.external_layout">
+        <main>
+            <t t-foreach="docs" t-as="doc">
+                <div class="page">
+
+                    <h2>Ficha de Producto</h2>
+
+                    <p><strong>Nombre:</strong> <span t-esc="doc.nombre"/></p>
+                    <p><strong>Estado:</strong> <span t-esc="doc.estado"/></p>
+                    <p><strong>Precio:</strong> <span t-esc="doc.precio"/> €</p>
+                    <p><strong>Ubicación:</strong> <span t-esc="doc.ubicacion"/></p>
+                    <p><strong>Propietario:</strong>
+                        <span t-esc="doc.propietario_id.name"/>
+                    </p>
+
+                    <t t-if="doc.descripcion">
+                        <p><strong>Descripción:</strong></p>
+                        <p t-esc="doc.descripcion"/>
+                    </t>
+
+                </div>
+            </t>
+        </main>
+    </t>
+</template>
+</odoo>

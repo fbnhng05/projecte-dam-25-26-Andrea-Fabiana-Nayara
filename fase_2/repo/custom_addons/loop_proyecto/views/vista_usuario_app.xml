@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="loop_usuarios_app_action" model="ir.actions.act_window">
+        <field name="name">Usuarios App</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('rol','=','cliente')]</field>
+    </record>
+
+    <menuitem id="menu_usuarios_app" name="Usuarios App" parent="loop_base_menu" action="loop_usuarios_app_action" sequence="20"/>
+
+    <record id="view_usuarios_app_list" model="ir.ui.view">
+        <field name="name">res.partner.usuarios.app.list</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='activity_ids']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='city']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='country_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="active" optional ="show"/>
+                    <field name="username"/>
+                    <field name="mobile"/>
+                    <field name="active" widget="boolean_toggle"/>
+                    <field name="rol"/>
+                    <field name="idioma"/>
+                    <field name="date_joined"/>
+                    <field name="valoracion_media"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_usuarios_app_form" model="ir.ui.view">
+        <field name="name">res.partner.usuarios.app.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Ocultar campos que no queremos ver -->
+            <xpath expr="//field[@name='street']/ancestor::group[1]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='function']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='website']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='title']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='category_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='parent_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='company_type']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='sales_purchases']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='internal_notes']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- ENVOLVER el grupo que contiene 'name', email, phone para ponerle título -->
+            <xpath expr="//field[@name='country_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//sheet/group[1]" position="replace">
+                <group string="Información Básica">
+                    <group>
+                        <field name="phone"/>
+                        <field name="mobile"/>
+                        <field name="email"/>
+                    </group>
+                </group>
+            </xpath>
+
+            <!-- Agregar sección para los campos extra de usuario -->
+            <xpath expr="//sheet/group[1]" position="after">
+                <group string="Datos de Usuario">
+                    <field name="username"/>
+                    <field name="password" widget="password"/>
+                    <field name="active"/>
+                    <field name="rol"/>
+                    <field name="idioma"/>
+                    <field name="date_joined"/>
+                    <field name="valoracion_ids" options="{'no_create': True}"/>
+                    <field name="valoracion_media"/>
+                </group>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_usuarios_app_kanban" model="ir.ui.view">
+        <field name="name">res.partner.usuarios.app.kanban</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name"/>
+                <field name="email"/>
+                <field name="valoracion_media"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card">
+                            <strong><t t-esc="record.name.value"/></strong>
+                            <div><t t-esc="record.email.value"/></div>
+                            <div>Valoración: <field name="valoracion_media"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+</odoo>

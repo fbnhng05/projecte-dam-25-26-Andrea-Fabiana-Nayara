@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Acción -->
+    <record id="action_loop_producto" model="ir.actions.act_window">
+        <field name="name">Productos</field>
+        <field name="res_model">loop_proyecto.producto</field>
+        <field name="view_mode">kanban,list,form,graph</field>
+    </record>
+
+    <!-- Menús -->
+    <menuitem id="loop_base_menu" name="Loop_Proyecto" sequence="10"/>
+    <menuitem id="menu_producto" name="Productos" parent="loop_base_menu" action="action_loop_producto" sequence="10"/>
+
+    <!-- ===================== -->
+    <!-- VISTA LISTA PRODUCTO -->
+    <!-- ===================== -->
+
+    <record id="view_producto_tree" model="ir.ui.view">
+        <field name="name">loop_proyecto.producto.tree</field>
+        <field name="model">loop_proyecto.producto</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="nombre"/>
+                <field name="estado"/>
+                <field name="precio"/>
+                <field name="ubicacion"/>
+                <field name="propietario_id"/>
+            </list>
+        </field>
+    </record>
+
+    
+    <!-- ===================== -->
+    <!-- VISTA KANBAN PRODUCTO -->
+    <!-- ===================== -->
+
+    <record id="view_producto_kanban" model="ir.ui.view">
+        <field name="name">loop_proyecto.producto.kanban</field>
+        <field name="model">loop_proyecto.producto</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_card">
+                            <div class="o_kanban_content">
+                                <strong>
+                                    <field name="nombre"/>
+                                </strong>
+
+                                <div>
+                                    <span class="badge">
+                                        <field name="estado"/>
+                                    </span>
+                                </div>
+
+                                <div>
+                                    💰 <field name="precio"/> €
+                                </div>
+
+                                <div>
+                                    📍 <field name="ubicacion"/>
+                                </div>
+
+                                <div class="text-muted">
+                                    <field name="propietario_id"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    
+    <!-- ===================== -->
+    <!-- VISTA FORMULARIO PRODUCTO -->
+    <!-- ===================== -->
+
+    <record id="view_producto_form" model="ir.ui.view">
+        <field name="name">loop_proyecto.producto.form</field>
+        <field name="model">loop_proyecto.producto</field>
+        <field name="arch" type="xml">
+            <form string="Producto">
+
+           <header>
+        <button name="%(loop_proyecto.action_report_producto)d"
+                string="Imprimir ficha"
+                type="action"
+                class="btn-primary"/>
+    </header>
+                <sheet>
+
+                    <group>
+                        <field name="nombre"/>
+                        <field name="categoria_id"/>
+                        <field name="estado"/>
+                    </group>
+
+                    <group>
+                        <field name="precio"/>
+                        <field name="ubicacion"/>
+                    </group>
+
+                    <group>
+                        <field name="propietario_id" readonly="1"/>
+                        <field name="antiguedad"/>
+                    </group>
+
+                    <group>
+                        <field name="descripcion"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Etiquetas">
+                            <field name="etiqueta_ids" widget="many2many_tags"/>
+                        </page>
+
+                        <page string="Imágenes">
+                            <field name="imagen_ids">
+                                <list editable="bottom">
+                                    <field name="imagen" widget="image"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- ===================== -->
+    <!-- SEARCH PRODUCTO -->
+    <!-- ===================== -->
+    <record id="view_producto_search" model="ir.ui.view">
+        <field name="name">loop_proyecto.producto.search</field>
+        <field name="model">loop_proyecto.producto</field>
+        <field name="arch" type="xml">
+            <search>
+
+                <!-- Campos de búsqueda rápida -->
+                <field name="nombre"/>
+                <field name="categoria_id"/>
+                <field name="estado"/>
+                <field name="propietario_id"/>
+
+                <!-- ===================== -->
+                <!-- FILTROS -->
+                <!-- ===================== -->
+                <filter name="nuevo"
+                        string="Productos nuevos"
+                        domain="[('estado','=','nuevo')]"/>
+
+                <filter name="segunda_mano"
+                        string="Segunda mano"
+                        domain="[('estado','=','segunda_mano')]"/>
+
+                <filter name="reacondicionado"
+                        string="Reacondicionados"
+                        domain="[('estado','=','reacondicionado')]"/>
+
+                <separator/>
+
+                <!-- ===================== -->
+                <!-- AGRUPAR POR -->
+                <!-- ===================== -->
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_categoria"
+                            string="Categoría"
+                            context="{'group_by':'categoria_id'}"/>
+
+                    <filter name="group_propietario"
+                            string="Propietario"
+                            context="{'group_by':'propietario_id'}"/>
+
+                    <filter name="group_estado"
+                            string="Estado"
+                            context="{'group_by':'estado'}"/>
+                </group>
+
+            </search>
+        </field>
+    </record>
+
+
+    <!-- ========================================================================================================= -->
+    <!--  LISTADO “USUARIOS MÁS ACTIVOS -->
+    <!-- ========================================================================================================= -->
+
+    <record id="view_producto_tree_usuarios_activos" model="ir.ui.view">
+    <field name="name">loop_proyecto.producto.tree.usuarios.activos</field>
+    <field name="model">loop_proyecto.producto</field>
+    <field name="arch" type="xml">
+        <list string="Usuarios más activos"
+              default_group_by="propietario_id"
+              default_order="id desc">
+            <field name="propietario_id"/>
+            <field name="nombre"/>
+            <field name="precio"/>
+            <field name="estado"/>
+        </list>
+    </field>
+</record>
+
+<record id="action_usuarios_mas_activos" model="ir.actions.act_window">
+    <field name="name">Usuarios más activos</field>
+    <field name="res_model">loop_proyecto.producto</field>
+    <field name="view_mode">list</field>
+    <field name="context">
+        {
+            'group_by': 'propietario_id'
+        }
+    </field>
+</record>
+
+<menuitem id="menu_usuarios_mas_activos"
+          name="* Usuarios más activos"
+          parent="loop_base_menu"
+          action="action_usuarios_mas_activos"
+          sequence="40"/>
+
+    <!-- ========================================================================================================= -->
+    <!--  LISTADO “PRODUCTOS MÁS DENUNCIADO -->
+    <!-- ========================================================================================================= -->
+
+ 
+<record id="view_denuncia_tree_productos_mas_denunciados" model="ir.ui.view">
+    <field name="name">loop_proyecto.denuncia.tree.productos</field>
+    <field name="model">loop_proyecto.denuncia_reporte</field>
+    <field name="arch" type="xml">
+        <list string="Productos más denunciados"
+              default_group_by="producto_id"
+              default_order="id desc">
+            <field name="producto_id"/>
+            <field name="estado_moderacion"/>
+            <field name="create_date"/>
+    </list>
+    </field>
+</record>
+
+
+<record id="action_productos_mas_denunciados" model="ir.actions.act_window">
+    <field name="name"> Productos más denunciados</field>
+    <field name="res_model">loop_proyecto.denuncia_reporte</field>
+    <field name="view_mode">list</field>
+    <field name="context">
+        {
+            'group_by': 'producto_id'
+        }
+    </field>
+</record>
+
+<menuitem id="menu_productos_mas_denunciados"
+          name="* Productos más denunciados"
+          parent="loop_base_menu"
+          action="action_productos_mas_denunciados"
+          sequence="45"/>
+
+
+    <!-- ===================== -->
+    <!-- ACCION Y MENU -->
+    <!-- ===================== -->
+
+    <record id="action_loop_producto_analisis" model="ir.actions.act_window">
+        <field name="name">Análisis de Productos</field>
+        <field name="res_model">loop_proyecto.producto</field>
+        <field name="view_mode">graph</field>
+    </record>
+
+</odoo>

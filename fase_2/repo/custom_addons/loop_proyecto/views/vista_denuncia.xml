@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ===================== -->
+    <!-- ACCIÓN -->
+    <!-- ===================== -->
+    <record id="action_denuncia" model="ir.actions.act_window">
+        <field name="name">Denuncias</field>
+        <field name="res_model">loop_proyecto.denuncia_reporte</field>
+        <field name="view_mode">list,form,graph</field>
+
+        <!-- CONTEXTO: filtros y agrupaciones por defecto -->
+        <field name="context">
+            {
+                'search_default_pendientes': 1,
+                'search_default_revisadas': 1,
+                'group_by': 'estado_moderacion'
+            }
+        </field>
+    </record>
+
+    <menuitem id="menu_denuncias" name="Denuncias" parent="loop_base_menu" action="action_denuncia" sequence="20"/>
+
+    <!-- ===================== -->
+    <!-- VISTA FORMULARIO -->
+    <!-- ===================== -->
+    <record id="view_denuncia_reporte_form" model="ir.ui.view">
+        <field name="name">loop_proyecto.denuncia_reporte.form</field>
+        <field name="model">loop_proyecto.denuncia_reporte</field>
+        <field name="arch" type="xml">
+            <form string="Denuncia">
+                <sheet>
+                    <group>
+                        <field name="denunciante_id" readonly="1"/>
+                        <field name="estado_usuario" readonly="1"/>
+                    </group>
+
+                    <group>
+                        <field name="producto_id"/>
+                        <field name="comentario_texto"/>
+                    </group>
+
+                    <group>
+                        <field name="motivo_denuncia"/> 
+                    </group>
+
+                    <group string="Revisión">
+                        <field name="empleado_id"/>
+                        <field name="fecha_revision"/>
+                        <field name="estado_moderacion"/>
+                        <field name="resultado_moderacion"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- ===================== -->
+    <!-- VISTA GRAPH (ANÁLISIS) -->
+    <!-- ===================== -->
+    <record id="view_denuncia_reporte_graph_estado" model="ir.ui.view">
+        <field name="name">loop_proyecto.denuncia_reporte.graph.estado</field>
+        <field name="model">loop_proyecto.denuncia_reporte</field>
+        <field name="arch" type="xml">
+            <graph string="Denuncias por Estado" type="bar">
+                <field name="estado_moderacion" type="row"/>
+                <field name="id" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+
+   <!-- ===================== -->
+    <!-- VISTA LISTA -->
+    <!-- ===================== -->
+<record id="view_denuncia_reporte_list" model="ir.ui.view">
+    <field name="name">loop_proyecto.denuncia_reporte.list</field>
+    <field name="model">loop_proyecto.denuncia_reporte</field>
+    <field name="arch" type="xml">
+        <list>
+            <field name="create_date"/>
+            <field name="denunciante_id"/>
+            <field name="producto_id"/>
+            <field name="comentario_texto"/>
+            <field name="estado_moderacion"/>
+            <field name="estado_usuario"/>
+            <field name="empleado_id"/>
+        </list>
+    </field>
+</record>
+
+
+    <!-- ===================== -->
+    <!-- VISTA BUSQUEDA -->
+    <!-- ===================== -->  
+<record id="view_denuncia_reporte_search" model="ir.ui.view">
+    <field name="name">loop_proyecto.denuncia_reporte.search</field>
+    <field name="model">loop_proyecto.denuncia_reporte</field>
+    <field name="arch" type="xml">
+        <search>
+            <field name="estado_moderacion"/>
+            <field name="producto_id"/>
+
+            <!-- Filtros -->
+            <filter name="pendientes"
+                    string="Pendientes"
+                    domain="[('estado_moderacion','=','pendiente')]"/>
+
+            <filter name="revisadas"
+                    string="Revisadas"
+                    domain="[('estado_moderacion','=','revisada')]"/>
+
+            <!-- Agrupar por -->
+            <group expand="0" string="Agrupar por">
+                <filter name="group_estado"
+                        string="Estado"
+                        context="{'group_by':'estado_moderacion'}"/>
+
+                <filter name="group_producto"
+                        string="Producto"
+                        context="{'group_by':'producto_id'}"/>
+            </group>
+        </search>
+    </field>
+</record>
+
+</odoo>
