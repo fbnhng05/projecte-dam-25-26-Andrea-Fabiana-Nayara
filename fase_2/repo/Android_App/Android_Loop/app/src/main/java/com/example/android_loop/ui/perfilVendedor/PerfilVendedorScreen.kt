@@ -3,6 +3,7 @@ package com.example.android_loop.ui.perfilVendedor
 import android.content.Context.MODE_PRIVATE
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -60,6 +62,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import android.net.Uri
 import androidx.navigation.NavController
 import com.example.android_loop.R
+import com.example.android_loop.ui.comentarios.Comentario
 import com.example.android_loop.ui.comentarios.ComentarioBurbuja
 import com.example.android_loop.ui.comentarios.ComentariosViewModel
 
@@ -82,6 +85,8 @@ fun PerfilVendedorScreen(
 
     var filtro by rememberSaveable { mutableStateOf("") }
     var textoResena by remember { mutableStateOf("") }
+    var estrellasSeleccionadas by remember { mutableIntStateOf(0) }
+    var editandoComentario by remember { mutableStateOf<Comentario?>(null) }
 
     val comentarios = comentariosViewModel.comentarios
     val isLoading = comentariosViewModel.isLoading
@@ -90,6 +95,8 @@ fun PerfilVendedorScreen(
     val enviado = comentariosViewModel.comentarioEnviado
 
     val esMiPerfil = currentUserId != 0 && currentUserId == vendedorId
+    val yaDejoResena = currentUserId != 0 && comentarios.any { it.comentador_partner_id == currentUserId }
+    val mostrarFormulario = !yaDejoResena || editandoComentario != null
 
     LaunchedEffect(Unit) {
         storedToken?.let { token ->
@@ -245,12 +252,27 @@ fun PerfilVendedorScreen(
                                 } else {
                                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                         comentarios.forEach { comentario ->
+                                            val esMioEsteComentario = comentario.comentador_partner_id == currentUserId
                                             ComentarioBurbuja(
                                                 comentario = comentario,
-                                                esMio = comentario.comentador == currentUser,
+                                                esMio = esMioEsteComentario,
                                                 onPerfilClick = { id, nombre ->
                                                     navController.navigate("perfilVendedor/$id/${Uri.encode(nombre)}")
-                                                }
+                                                },
+                                                onDelete = if (esMioEsteComentario) {{
+                                                    comentariosViewModel.eliminarComentario(comentario.id, vendedorId)
+                                                    editandoComentario = null
+                                                    textoResena = ""
+                                                    estrellasSeleccionadas = 0
+                                                }} else null,
+                                                onEdit = if (esMioEsteComentario) {{
+                                                    editandoComentario = comentario
+                                                    textoResena = comentario.contenido
+                                                    estrellasSeleccionadas = comentario.valoracion?.toInt() ?: 0
+                                                }} else null,
+                                                onReport = if (!esMioEsteComentario) {{
+                                                    // TODO: implementar denuncias
+                                                }} else null
                                             )
                                         }
                                     }
@@ -269,30 +291,85 @@ fun PerfilVendedorScreen(
             // Input fijo en la parte inferior (solo tab Reseñas y si no es mi perfil)
             if (selectedTab == 1 && !esMiPerfil) {
                 HorizontalDivider()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = textoResena,
-                        onValueChange = { textoResena = it },
-                        placeholder = { Text("Escribe una reseña...") },
-                        modifier = Modifier.weight(1f),
-                        maxLines = 3,
-                        shape = RoundedCornerShape(20.dp)
-                    )
-                    IconButton(
-                        onClick = { comentariosViewModel.enviarComentario(vendedorId, textoResena) },
-                        enabled = textoResena.isNotBlank() && !isLoading
+                if (!mostrarFormulario) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            Icons.Default.Send,
-                            contentDescription = "Enviar",
-                            tint = if (textoResena.isNotBlank()) Color(0xFF003459) else Color.Gray
+                        Text(
+                            text = "Ya has dejado una reseña a este usuario",
+                            color = Color.Gray,
+                            fontSize = 13.sp,
+                            textAlign = TextAlign.Center
                         )
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        // Etiqueta cuando se está editando
+                        if (editandoComentario != null) {
+                            Text(
+                                text = "Editando reseña",
+                                fontSize = 12.sp,
+                                color = Color(0xFF003459)
+                            )
+                        }
+                        // Selector de estrellas
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            (1..5).forEach { star ->
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = "$star estrellas",
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clickable { estrellasSeleccionadas = star },
+                                    tint = if (star <= estrellasSeleccionadas) Color(0xFFFFB800)
+                                           else Color.LightGray
+                                )
+                            }
+                        }
+                        // Campo de texto + botón enviar
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = textoResena,
+                                onValueChange = { textoResena = it },
+                                placeholder = { Text("Escribe una reseña...") },
+                                modifier = Modifier.weight(1f),
+                                maxLines = 3,
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            IconButton(
+                                onClick = {
+                                    val valoracion = if (estrellasSeleccionadas > 0) estrellasSeleccionadas.toFloat() else null
+                                    val comentarioEditado = editandoComentario
+                                    if (comentarioEditado != null) {
+                                        comentariosViewModel.editarComentario(comentarioEditado.id, textoResena, valoracion, vendedorId)
+                                        editandoComentario = null
+                                        textoResena = ""
+                                        estrellasSeleccionadas = 0
+                                    } else {
+                                        comentariosViewModel.enviarComentario(vendedorId, textoResena, valoracion)
+                                    }
+                                },
+                                enabled = textoResena.isNotBlank() && !isLoading
+                            ) {
+                                Icon(
+                                    Icons.Default.Send,
+                                    contentDescription = "Enviar",
+                                    tint = if (textoResena.isNotBlank()) Color(0xFF003459) else Color.Gray
+                                )
+                            }
+                        }
                     }
                 }
             }

@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.android_loop.data.Producto.accesoApi.ApiProductLoop
 import com.example.android_loop.data.Producto.accesoApi.TokenManager
 import com.example.android_loop.data.repository.UserRepository
+import com.example.android_loop.ui.comentarios.UpdateComentarioData
+import com.example.android_loop.ui.comentarios.UpdateComentarioRequest
 import kotlinx.coroutines.launch
 
 class ComentariosViewModel : ViewModel() {
@@ -50,12 +52,12 @@ class ComentariosViewModel : ViewModel() {
         }
     }
 
-    fun enviarComentario(usuarioId: Int, contenido: String) {
+    fun enviarComentario(usuarioId: Int, contenido: String, valoracion: Float? = null) {
         if (contenido.isBlank()) return
         viewModelScope.launch {
             isLoading = true
             errorMessage = null
-            api.crearComentario(CreateComentarioRequest(data = CreateComentarioData(usuarioId, contenido, "published")))
+            api.crearComentario(CreateComentarioRequest(data = CreateComentarioData(usuarioId, contenido, "published", valoracion)))
                 .onSuccess { response ->
                     if (response.success == true) {
                         comentarioEnviado = true
@@ -71,5 +73,43 @@ class ComentariosViewModel : ViewModel() {
 
     fun resetComentarioEnviado() {
         comentarioEnviado = false
+    }
+
+    fun editarComentario(comentarioId: Int, contenido: String, valoracion: Float?, usuarioId: Int) {
+        if (contenido.isBlank()) return
+        viewModelScope.launch {
+            isLoading = true
+            errorMessage = null
+            api.editarComentario(
+                comentarioId,
+                UpdateComentarioRequest(UpdateComentarioData(contenido, "published", valoracion))
+            )
+                .onSuccess { response ->
+                    if (response.success == true) {
+                        cargarComentarios(usuarioId)
+                    } else {
+                        errorMessage = response.error ?: "Error al editar el comentario"
+                    }
+                }
+                .onFailure { errorMessage = it.message }
+            isLoading = false
+        }
+    }
+
+    fun eliminarComentario(comentarioId: Int, usuarioId: Int) {
+        viewModelScope.launch {
+            isLoading = true
+            errorMessage = null
+            api.eliminarComentario(comentarioId)
+                .onSuccess { response ->
+                    if (response.success == true) {
+                        cargarComentarios(usuarioId)
+                    } else {
+                        errorMessage = response.error ?: "Error al eliminar el comentario"
+                    }
+                }
+                .onFailure { errorMessage = it.message }
+            isLoading = false
+        }
     }
 }

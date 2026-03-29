@@ -100,7 +100,7 @@ class MainActivity : ComponentActivity() {
             val prefs = context.getSharedPreferences("loop_prefs", MODE_PRIVATE)
             val token = prefs.getString("token", "") ?: ""
 
-            val rutasSinMenu = listOf("login", "registro", "crear_producto", "perfilVendedor")
+            val rutasSinMenu = listOf("login", "registro", "crear_producto", "perfilVendedor/{vendedorId}/{vendedorNombre}")
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = navBackStackEntry?.destination?.route
 

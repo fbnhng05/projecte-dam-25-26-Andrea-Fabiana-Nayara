@@ -45,6 +45,22 @@ class controladorComentario(http.Controller):
                 'contenido': data['contenido'],
                 'estado': data.get('estado', 'published'),
             })
+
+            valoracion_value = data.get('valoracion')
+            if valoracion_value is not None and 0 <= valoracion_value <= 5:
+                existing = request.env['loop_proyecto.valoracion'].sudo().search([
+                    ('usuario_comentador', '=', user.id),
+                    ('usuario_valorado', '=', data['partner_id'])
+                ], limit=1)
+                if existing:
+                    existing.write({'valoracion': valoracion_value})
+                else:
+                    request.env['loop_proyecto.valoracion'].sudo().create({
+                        'usuario_comentador': user.id,
+                        'usuario_valorado': data['partner_id'],
+                        'valoracion': valoracion_value,
+                    })
+
             return {'success': True, 'comentario_id': comentario.id}
         except Exception as e:
             return {'error': str(e)}
@@ -69,19 +85,32 @@ class controladorComentario(http.Controller):
         if not data:
             return {'error': 'No se han enviado datos'}
         
-        required = ['contenido', 'estado']
-        
-        for field in required:
-            if field not in data:
-                return {'error': f'Falta el campo {field}'}
-            
+        if 'contenido' not in data:
+            return {'error': 'Falta el campo contenido'}
+
         try:
             comentario.write({
                 'contenido': data['contenido'],
-                'estado': data['estado'],
+                'estado': data.get('estado', comentario.estado),
                 'moderador_id': data.get('moderador_id', None),
                 'fecha_moderacion': data.get('fecha_moderacion', None),
             })
+
+            valoracion_value = data.get('valoracion')
+            if valoracion_value is not None and 0 <= valoracion_value <= 5:
+                existing = request.env['loop_proyecto.valoracion'].sudo().search([
+                    ('usuario_comentador', '=', comentario.comentador_id.id),
+                    ('usuario_valorado', '=', comentario.partner_id.id)
+                ], limit=1)
+                if existing:
+                    existing.write({'valoracion': valoracion_value})
+                else:
+                    request.env['loop_proyecto.valoracion'].sudo().create({
+                        'usuario_comentador': comentario.comentador_id.id,
+                        'usuario_valorado': comentario.partner_id.id,
+                        'valoracion': valoracion_value,
+                    })
+
             return {'success': True, 'comentario_id': comentario.id}
         except Exception as e:
             return {'error': str(e)}
@@ -102,19 +131,27 @@ class controladorComentario(http.Controller):
             ('estado', '=', 'published')
         ])
 
-        return {
-            'comentarios': [{
+        resultado = []
+        for c in comentarios:
+            valoracion_record = request.env['loop_proyecto.valoracion'].sudo().search([
+                ('usuario_comentador', '=', c.comentador_id.id),
+                ('usuario_valorado', '=', partner_id)
+            ], limit=1)
+            valoracion_val = valoracion_record.valoracion if valoracion_record else None
+
+            resultado.append({
                 'id': c.id,
                 'contenido': c.contenido,
                 'fecha_creacion': str(c.fecha_creacion),
                 'comentador': c.comentador_id.name,
                 'comentador_partner_id': c.comentador_id.id,
                 'imagen_comentador': c.comentador_id.image_1920.decode('utf-8') if c.comentador_id.image_1920 else None,
+                'valoracion': valoracion_val,
                 'estado': c.estado,
                 'moderador': c.moderador_id.name if c.moderador_id else None,
                 'fecha_moderacion': str(c.fecha_moderacion) if c.fecha_moderacion else None,
-            } for c in comentarios]
-        }
+            })
+        return {'comentarios': resultado}
 
     # --------------------------------------------------------------------------
     #  CONSULTAR COMENTARIO (GET)

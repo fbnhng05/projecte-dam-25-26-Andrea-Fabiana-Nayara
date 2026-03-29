@@ -6,6 +6,9 @@ import com.example.android_loop.ui.comentarios.Comentario
 import com.example.android_loop.ui.comentarios.ComentariosResponse
 import com.example.android_loop.ui.comentarios.CreateComentarioRequest
 import com.example.android_loop.ui.comentarios.CreateComentarioResponse
+import com.example.android_loop.ui.comentarios.UpdateComentarioRequest
+import com.example.android_loop.ui.comentarios.UpdateComentarioResponse
+import com.example.android_loop.ui.comentarios.DeleteComentarioResponse
 // ── FIN reseñas ──
 import com.example.android_loop.data.Producto.ProductosResponse
 import com.example.android_loop.data.Producto.Product
@@ -184,6 +187,57 @@ class ApiProductLoop(
                     header("Authorization", "Bearer $token")
                     contentType(ContentType.Application.Json)
                     setBody(JsonRpcRequest(params = request))
+                }.body()
+
+            Result.success(response.result)
+
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+    }
+
+    suspend fun editarComentario(
+        comentarioId: Int,
+        request: UpdateComentarioRequest
+    ): Result<UpdateComentarioResponse> {
+
+        return try {
+
+            val token = TokenManager.getToken()
+                ?: return Result.failure(Exception("Token no disponible"))
+
+            val response: RpcResponse<UpdateComentarioResponse> =
+                cliente.patch("${Servidor.BASE_URL}/api/v1/loop/comentarios/$comentarioId") {
+                    header("Authorization", "Bearer $token")
+                    contentType(ContentType.Application.Json)
+                    setBody(JsonRpcRequest(params = request))
+                }.body()
+
+            Result.success(response.result)
+
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+    }
+
+    suspend fun eliminarComentario(comentarioId: Int): Result<DeleteComentarioResponse> {
+
+        return try {
+
+            val token = TokenManager.getToken()
+                ?: return Result.failure(Exception("Token no disponible"))
+
+            val response: RpcResponse<DeleteComentarioResponse> =
+                cliente.delete("${Servidor.BASE_URL}/api/v1/loop/comentarios/$comentarioId") {
+                    header("Authorization", "Bearer $token")
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        buildJsonObject {
+                            put("jsonrpc", "2.0")
+                            put("method", "call")
+                            put("params", buildJsonObject {})
+                        }
+                    )
                 }.body()
 
             Result.success(response.result)

@@ -16,12 +16,38 @@ data class CreateComentarioRequest(
 data class CreateComentarioData(
     val partner_id: Int,
     val contenido: String,
-    val estado: String
+    val estado: String,
+    val valoracion: Float? = null
 )
 
 @Serializable
 data class CreateComentarioResponse(
     val success: Boolean? = null,
     val comentario_id: Int? = null,
+    val error: String? = null
+)
+
+@Serializable
+data class UpdateComentarioData(
+    val contenido: String,
+    val estado: String,
+    val valoracion: Float? = null
+)
+
+@Serializable
+data class UpdateComentarioRequest(
+    val data: UpdateComentarioData
+)
+
+@Serializable
+data class UpdateComentarioResponse(
+    val success: Boolean? = null,
+    val comentario_id: Int? = null,
+    val error: String? = null
+)
+
+@Serializable
+data class DeleteComentarioResponse(
+    val success: Boolean? = null,
     val error: String? = null
 )
