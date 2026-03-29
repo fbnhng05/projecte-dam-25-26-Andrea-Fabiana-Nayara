@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_loop_proyecto_producto_user,access.loop_proyecto.producto.user,model_loop_proyecto_producto,base.group_user,1,1,1,1
+access_loop_proyecto_producto_imagen_user,access.loop_proyecto.producto_imagen.user,model_loop_proyecto_producto_imagen,base.group_user,1,1,1,1
+access_loop_proyecto_categoria_user,access.loop_proyecto.categoria.user,model_loop_proyecto_categoria,base.group_user,1,1,1,1
+access_loop_proyecto_etiqueta_user,access.loop_proyecto.etiqueta.user,model_loop_proyecto_etiqueta_producto,base.group_user,1,1,1,1
+access_loop_proyecto_comentario_user,access.loop_proyecto.comentario.user,model_loop_proyecto_comentario,base.group_user,1,1,1,1
+access_loop_proyecto_valoracion_user,access.loop_proyecto.valoracion.user,model_loop_proyecto_valoracion,base.group_user,1,1,1,1
+access_loop_proyecto_denuncia_user,access.loop_proyecto.denuncia.user,model_loop_proyecto_denuncia_reporte,base.group_user,1,1,1,1
+access_loop_etiqueta_producto,access_loop_etiqueta_producto,model_loop_proyecto_etiqueta_producto,base.group_user,1,1,1,1
+access_loop_usuario_app_user,access.loop.usuario_app.user,model_res_partner,base.group_user,1,1,1,1
+access_loop_empleado_user,access.loop.empleado.user,model_hr_employee,base.group_user,1,1,1,1
