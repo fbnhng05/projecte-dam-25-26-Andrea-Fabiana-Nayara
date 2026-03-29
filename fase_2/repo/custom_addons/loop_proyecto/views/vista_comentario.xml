@@ -16,7 +16,7 @@
             <list>
                 <field name="fecha_creacion"/>
                 <field name="comentador_id"/>
-                <field name="producto_id"/>
+                <field name="partner_id" string="Usuario valorado"/>
                 <field name="contenido"/>
                 <field name="estado"/>
                 <field name="moderador_id"/>
@@ -34,7 +34,7 @@
                     <group>
                         <field name="fecha_creacion"/>
                         <field name="comentador_id"/>
-                        <field name="producto_id"/>
+                        <field name="partner_id" string="Usuario valorado"/>
                         <field name="contenido"/>
                         <field name="estado"/>
                         <field name="moderador_id"/>
@@ -52,7 +52,7 @@
             <kanban>
                 <field name="fecha_creacion"/>
                 <field name="comentador_id"/>
-                <field name="producto_id"/>
+                <field name="partner_id"/>
                 <field name="contenido"/>
                 <field name="estado"/>
                 <field name="moderador_id"/>

@@ -32,19 +32,32 @@ class controladorComentario(http.Controller):
         if not data:
             return {'error': 'No se han enviado datos'}
         
-        required = ['producto_id','contenido', 'estado']
-        
-        for field in required:
-            if field not in data:
-                return {'error': f'Falta el campo {field}'}
-            
+        if 'contenido' not in data:
+            return {'error': 'Falta el campo contenido'}
+
         try:
             comentario = request.env['loop_proyecto.comentario'].sudo().create({
-                'producto_id': data['producto_id'],
+                'partner_id': data.get('partner_id'),
                 'comentador_id': user.id,
                 'contenido': data['contenido'],
-                'estado': data['estado'],
+                'estado': data.get('estado', 'published'),
             })
+
+            valoracion_value = data.get('valoracion')
+            if valoracion_value is not None and data.get('partner_id') and 0 <= valoracion_value <= 5:
+                existing = request.env['loop_proyecto.valoracion'].sudo().search([
+                    ('usuario_comentador', '=', user.id),
+                    ('usuario_valorado', '=', data['partner_id'])
+                ], limit=1)
+                if existing:
+                    existing.write({'valoracion': valoracion_value})
+                else:
+                    request.env['loop_proyecto.valoracion'].sudo().create({
+                        'usuario_comentador': user.id,
+                        'usuario_valorado': data['partner_id'],
+                        'valoracion': valoracion_value,
+                    })
+
             return {'success': True, 'comentario_id': comentario.id}
         except Exception as e:
             return {'error': str(e)}
@@ -69,23 +82,73 @@ class controladorComentario(http.Controller):
         if not data:
             return {'error': 'No se han enviado datos'}
         
-        required = ['contenido', 'estado']
-        
-        for field in required:
-            if field not in data:
-                return {'error': f'Falta el campo {field}'}
-            
+        if 'contenido' not in data:
+            return {'error': 'Falta el campo contenido'}
+
         try:
             comentario.write({
                 'contenido': data['contenido'],
-                'estado': data['estado'],
+                'estado': data.get('estado', comentario.estado),
                 'moderador_id': data.get('moderador_id', None),
                 'fecha_moderacion': data.get('fecha_moderacion', None),
             })
+
+            valoracion_value = data.get('valoracion')
+            if valoracion_value is not None and comentario.partner_id and 0 <= valoracion_value <= 5:
+                existing = request.env['loop_proyecto.valoracion'].sudo().search([
+                    ('usuario_comentador', '=', comentario.comentador_id.id),
+                    ('usuario_valorado', '=', comentario.partner_id.id)
+                ], limit=1)
+                if existing:
+                    existing.write({'valoracion': valoracion_value})
+                else:
+                    request.env['loop_proyecto.valoracion'].sudo().create({
+                        'usuario_comentador': comentario.comentador_id.id,
+                        'usuario_valorado': comentario.partner_id.id,
+                        'valoracion': valoracion_value,
+                    })
+
             return {'success': True, 'comentario_id': comentario.id}
         except Exception as e:
             return {'error': str(e)}
         
+    # --------------------------------------------------------------------------
+    #  LISTAR COMENTARIOS DE UN USUARIO/VENDEDOR (GET)
+    # --------------------------------------------------------------------------
+    @http.route('/api/v1/loop/usuarios/<int:partner_id>/comentarios', auth='none', methods=['GET'], csrf=False, type='json')
+    def get_comentarios_usuario(self, partner_id, **params):
+
+        user = get_current_user_from_token()
+        if not user:
+            return {'error': 'Unauthorized'}
+
+        comentarios = request.env['loop_proyecto.comentario'].sudo().search([
+            ('partner_id', '=', partner_id),
+            ('estado', '=', 'published')
+        ])
+
+        result = []
+        for c in comentarios:
+            valoracion_record = request.env['loop_proyecto.valoracion'].sudo().search([
+                ('usuario_comentador', '=', c.comentador_id.id),
+                ('usuario_valorado', '=', partner_id)
+            ], limit=1)
+
+            result.append({
+                'id': c.id,
+                'contenido': c.contenido,
+                'fecha_creacion': str(c.fecha_creacion) if c.fecha_creacion else '',
+                'comentador': c.comentador_id.name or '',
+                'comentador_partner_id': c.comentador_id.id,
+                'imagen_comentador': c.comentador_id.image_1920.decode('utf-8') if c.comentador_id.image_1920 else None,
+                'valoracion': valoracion_record.valoracion if valoracion_record else None,
+                'estado': c.estado,
+                'moderador': c.moderador_id.name if c.moderador_id else None,
+                'fecha_moderacion': str(c.fecha_moderacion) if c.fecha_moderacion else None,
+            })
+
+        return {'comentarios': result}
+
     # --------------------------------------------------------------------------
     #  CONSULTAR COMENTARIO (GET)
     # --------------------------------------------------------------------------
@@ -104,7 +167,7 @@ class controladorComentario(http.Controller):
         try:
             comentario_data = {
                 'id': comentario.id,
-                'producto_id': comentario.producto_id.id,
+                'partner_id': comentario.partner_id.id if comentario.partner_id else None,
                 'comentador_id': comentario.comentador_id.id,
                 'contenido': comentario.contenido,
                 'estado': comentario.estado,

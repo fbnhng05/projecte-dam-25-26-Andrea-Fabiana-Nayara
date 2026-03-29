@@ -15,14 +15,14 @@ class Comentario(models.Model):
         readonly=True
     )
     
-    producto_id = fields.Many2one(
-        'loop_proyecto.producto',
-        string='Producto',
-        required=True,
+    partner_id = fields.Many2one(
+        'res.partner',
+        string='Usuario valorado',
+        required=False,
         index=True,
         ondelete='cascade'
     )
-    
+
     estado = fields.Selection(
         [('published', 'Publicado'), ('hidden', 'Oculto'), ('deleted', 'Eliminado')],
         string='Estado',
@@ -32,3 +32,8 @@ class Comentario(models.Model):
     
     moderador_id = fields.Many2one('res.partner', string='Moderado por')
     fecha_moderacion = fields.Datetime(string='Fecha moderación')
+
+    _sql_constraints = [
+        ('comentario_unique', 'unique(comentador_id, partner_id)',
+         'Ya has dejado una reseña a este usuario.')
+    ]

@@ -92,7 +92,8 @@ class CRUD_User_Controller(http.Controller):
             'email': user.email,
             'phone': user.phone,
             'mobile': user.mobile,
-            'idioma': user.idioma
+            'idioma': user.idioma,
+            'image_1920': user.image_1920.decode('utf-8') if user.image_1920 else ''
         }
 
     """
