@@ -11,14 +11,8 @@ Estructura del programa que pide el enunciado:
 
 		-> repository: aquí está el acceso a lo que recibimos de la API, igual que en acceso a datos, desde aquí llamamos a las peticiones de la API.
 
-	-> vistas:
-
-		
-
-	-> modelos:
-
-		-> Yo no estoy usando modelos de momento pero si necesitáis crearlos, aquí podéis
-
+	-> ui:
+		-> Contiene todas las vistas
 
 	-> sharedPreferences: guarda el token. Para obtenerlo usad esto:
 
